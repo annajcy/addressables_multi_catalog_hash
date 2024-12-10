@@ -7,6 +7,16 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
     /// </summary>
     public static class StringUtility
     {
+        public static string AppendFileNameExtension(string fileName)
+        {
+            return fileName +
+#if ENABLE_JSON_CATALOG
+                    ".json";
+#else
+                   ".bin";
+#endif
+        }
+
         public static string GetFileName(string path, BuildTarget target)
         {
             char directorySeparatorChar = PathSeparatorForPlatform(target);

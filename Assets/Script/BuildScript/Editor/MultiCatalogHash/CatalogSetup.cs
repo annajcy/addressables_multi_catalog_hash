@@ -28,7 +28,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
 
             var profileSettings = aaContext.Settings.profileSettings;
             var profileId = aaContext.Settings.activeProfileId;
-            var catalogFileName = $"{externalCatalog.CatalogName}{Path.GetExtension(builderInput.RuntimeCatalogFilename)}";
+            var catalogFileName = $"{externalCatalog.CatalogName}";
 
             catalogBuildInfo = new CatalogBuildInfo(externalCatalog.CatalogName, catalogFileName)
             {
