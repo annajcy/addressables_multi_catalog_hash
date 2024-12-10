@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c13a4555beb9426f9dd5f585a295b5e, type: 3}
+  m_Name: DLC1
+  m_EditorClassIdentifier: 
+  assetGroups:
+  - {fileID: 11400000, guid: d7535e24b6fe24809af2c0979244391a, type: 2}
+  buildPath:
+    m_Id: 6b082b53ea2dc4dc4b7538e761b36865
+  runtimeLoadPath:
+    m_Id: 2be2ff700902746769e5f05327e3051c
+  catalogName: DLC1
