@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEditor;
+using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Build;
 using UnityEditor.AddressableAssets.Build.BuildPipelineTasks;
 using UnityEditor.AddressableAssets.Build.DataBuilders;
@@ -315,17 +316,27 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
 			foreach (var dataEntry in aaContext.locations)
 			{
 				var preferredCatalog = catalogSetups.FirstOrDefault(cs => cs.externalCatalog.IsPartOfCatalog(dataEntry, aaContext));
+                var fileName = Utility.GetFileName(dataEntry.InternalId, builderInput.Target);
                 if (preferredCatalog != null)
-				{
+                {
+
+                    if (dataEntry.Dependencies.Count == 0)
+                    {
+                        Utility.MoveFile(preferredCatalog.catalogBuildInfo.rootBuildPath + $"/{fileName}" ,
+                            preferredCatalog.catalogBuildInfo.buildPath);
+                        dataEntry.InternalId = preferredCatalog.catalogBuildInfo.loadPath +
+                                               $"/{fileName}";
+                    }
+
                     preferredCatalog.catalogBuildInfo.locations.Add(dataEntry);
 					if (dataEntry.ResourceType == typeof(IAssetBundleResource))
-						preferredCatalog.catalogBuildInfo.includedBundles.Add(StringUtility.GetFileName(dataEntry.InternalId, builderInput.Target));
+						preferredCatalog.catalogBuildInfo.includedBundles.Add(fileName);
 				}
 				else
                 {
                     defaultCatalog.locations.Add(dataEntry);
                     if (dataEntry.ResourceType == typeof(IAssetBundleResource))
-                        defaultCatalog.includedBundles.Add(StringUtility.GetFileName(dataEntry.InternalId, builderInput.Target));
+                        defaultCatalog.includedBundles.Add(fileName);
                 }
 			}
 
@@ -494,7 +505,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             {
                 var contentCatalog = new ContentCatalogData(catalogInfo.identifier);
 
-                # region Generate Catalog Files
+                # region Generate Caxtalog Files
 
                 string catalogType =
 
@@ -512,7 +523,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
                         foreach (var assetBundleBuildResult in addrResult.AssetBundleBuildResults)
                         {
                             if (catalogInfo.includedBundles.Exists(bundleName => string.Equals(bundleName,
-                                    StringUtility.GetFileName(assetBundleBuildResult.FilePath, builderInput.Target))))
+                                    Utility.GetFileName(assetBundleBuildResult.FilePath, builderInput.Target))))
                                 hashingObjects.Add(assetBundleBuildResult.Hash);
                         }
 
@@ -548,7 +559,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
                         contentCatalog.LocalHash = contentHash;
                     }
 
-                    CreateCatalogFiles(jsonText, catalogInfo.identifier, catalogInfo.catalogFileName,  builderInput, aaContext);
+                    CreateCatalogFiles(jsonText, catalogInfo, builderInput, aaContext);
 #else
                     //save binary catalog
                     byte[] bytes = null;
@@ -674,8 +685,14 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
                 {
                     List<IBuildTask> tasks = new List<IBuildTask>();
                     var buildLayoutTask = new BuildLayoutGenerationTask();
+
+                    List<ContentCatalogDataEntry> locations = new List<ContentCatalogDataEntry>();
+                    foreach (var catalogBuildInfo in catalogs)
+                        locations.AddRange(catalogBuildInfo.locations);
+
                     extractData.BuildContext.SetContextObject<IBuildLayoutParameters>(
-                        new BuildLayoutParameters(bundleRenameMap, new ContentCatalogData(aaContext.locations)));
+                        new BuildLayoutParameters(bundleRenameMap, new ContentCatalogData(locations)));
+
                     tasks.Add(buildLayoutTask);
                     BuildTasksRunner.Run(tasks, extractData.BuildContext);
                 }
@@ -725,7 +742,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             return addressableEntryToCachedStateMap;
         }
 
-        internal bool CreateCatalogFiles(
+        private bool CreateCatalogFiles(
 #if ENABLE_JSON_CATALOG
             string jsonText,
 #else
@@ -749,10 +766,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
 
             // Path needs to be resolved at runtime.
             string localLoadPath = "{UnityEngine.AddressableAssets.Addressables.RuntimePath}/" +
-                                   StringUtility.AppendFileNameExtension(fileName);
-
-            string remoteLoadPath = $"{catalogBuildInfo.loadPath}/" + StringUtility.AppendFileNameExtension(fileName + "_" + builderInput.PlayerVersion);
-
+                                   Utility.AppendFileNameExtension(fileName);
 
 #if ENABLE_JSON_CATALOG
             var catalogHash = HashingMethods.Calculate(jsonText);
@@ -761,7 +775,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
 #endif
 
             catalogBuildPath = Path.Combine(Addressables.BuildPath,
-                StringUtility.AppendFileNameExtension(fileName));
+                Utility.AppendFileNameExtension(fileName));
 
 #if ENABLE_JSON_CATALOG
             if (aaContext.Settings.BundleLocalCatalog)
@@ -920,8 +934,8 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
 
             var versionedFileName = aaSettings.profileSettings.EvaluateString(aaSettings.activeProfileId,
                 $"/{fileName}_" + builderInput.PlayerVersion);
-            var remoteBuildFolder = aaSettings.RemoteCatalogBuildPath.GetValue(aaSettings);
-            var remoteLoadFolder = aaSettings.RemoteCatalogLoadPath.GetValue(aaSettings);
+            var remoteBuildFolder = catalogBuildInfo.buildPath;
+            var remoteLoadFolder = catalogBuildInfo.loadPath;
 
             if (string.IsNullOrEmpty(remoteBuildFolder) ||
                 string.IsNullOrEmpty(remoteLoadFolder) ||
@@ -935,7 +949,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             else
             {
 
-                var remoteJsonBuildPath = remoteBuildFolder + StringUtility.AppendFileNameExtension(versionedFileName);
+                var remoteJsonBuildPath = remoteBuildFolder + Utility.AppendFileNameExtension(versionedFileName);
                 var remoteHashBuildPath = remoteBuildFolder + versionedFileName + ".hash";
 
 #if ENABLE_JSON_CATALOG
@@ -987,12 +1001,9 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             return dependencyHashes;
         }
 
-        internal static string GetProjectName()
-        {
-            return new DirectoryInfo(Path.GetDirectoryName(Application.dataPath) ?? string.Empty).Name;
-        }
+        private static string GetProjectName() { return new DirectoryInfo(Path.GetDirectoryName(Application.dataPath) ?? string.Empty).Name; }
 
-        internal static void SetAssetEntriesBundleFileIdToCatalogEntryBundleFileId(ICollection<AddressableAssetEntry> assetEntries, Dictionary<string, string> bundleNameToInternalBundleIdMap,
+        private static void SetAssetEntriesBundleFileIdToCatalogEntryBundleFileId(ICollection<AddressableAssetEntry> assetEntries, Dictionary<string, string> bundleNameToInternalBundleIdMap,
             IBundleWriteData writeData, Dictionary<string, ContentCatalogDataEntry> locationIdToCatalogEntryMap)
         {
             foreach (var loc in assetEntries)

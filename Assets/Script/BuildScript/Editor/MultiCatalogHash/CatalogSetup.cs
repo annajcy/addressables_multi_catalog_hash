@@ -33,7 +33,8 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             catalogBuildInfo = new CatalogBuildInfo(externalCatalog.CatalogName, catalogFileName)
             {
                 // Set the build path.
-                buildPath = externalCatalog.BuildPath.GetValue(profileSettings, profileId)
+                buildPath = externalCatalog.BuildPath.GetValue(profileSettings, profileId) + $"/{catalogFileName}",
+                rootBuildPath = externalCatalog.BuildPath.GetValue(profileSettings, profileId)
             };
 
             if (string.IsNullOrEmpty(catalogBuildInfo.buildPath))
@@ -44,11 +45,11 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             }
 
             // Set the load path.
-            catalogBuildInfo.loadPath = externalCatalog.RuntimeLoadPath.GetValue(profileSettings, profileId);
+            catalogBuildInfo.loadPath = externalCatalog.RuntimeLoadPath.GetValue(profileSettings, profileId) + $"{catalogFileName}";
             if (string.IsNullOrEmpty(catalogBuildInfo.loadPath))
                 catalogBuildInfo.loadPath = profileSettings.EvaluateString(profileId, externalCatalog.RuntimeLoadPath.Id);
 
-            catalogBuildInfo.registerToSettings = !aaContext.Settings.DisableCatalogUpdateOnStartup;
+            catalogBuildInfo.registerToSettings = false;
         }
     }
 }

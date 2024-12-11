@@ -15,13 +15,13 @@ MonoBehaviour:
   m_GroupName: Remote Assets
   m_GUID: 1cacee5494e6c496dbef9a521ca5d4c4
   m_SerializeEntries:
-  - m_GUID: 17f73b44f1b48442da3988500f16ca6c
-    m_Address: Cube (1)
+  - m_GUID: 968fd2aba791141788933494b2977981
+    m_Address: Cube 1
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: ae9dcafcf3972439091208aa398ee0db
-    m_Address: Cube (2)
+  - m_GUID: dd56f134f874d40f49cdcf1fa1661bc2
+    m_Address: Cube 2
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

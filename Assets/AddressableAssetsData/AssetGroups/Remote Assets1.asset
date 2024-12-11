@@ -15,8 +15,8 @@ MonoBehaviour:
   m_GroupName: Remote Assets1
   m_GUID: e17cee5c1a95448abba5fa12f64e723e
   m_SerializeEntries:
-  - m_GUID: 416e09179c15844ff9cf724223bf118a
-    m_Address: Cube (4)
+  - m_GUID: 35b9a4003b82e499baccba2ea2c90dbb
+    m_Address: Cube 4
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

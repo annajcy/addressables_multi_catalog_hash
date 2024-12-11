@@ -42,6 +42,11 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
     		/// </summary>
     		public string loadPath;
 
+		    /// <summary>
+		    /// Root Build Path
+		    /// </summary>
+		    public string rootBuildPath;
+
     		/// <summary>
     		/// Determines whether the catalog is going to be registered in settings.json.
     		///
