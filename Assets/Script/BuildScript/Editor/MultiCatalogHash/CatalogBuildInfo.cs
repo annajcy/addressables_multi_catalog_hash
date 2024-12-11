@@ -20,7 +20,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
     		///
     		/// Note that the default main catalog is written to "catalog.json"
     		/// </summary>
-    		public readonly string catalogFileName;
+    		public readonly string fileName;
 
     		/// <summary>
     		/// The locations, i.e., the addressable assets, contained in this catalog.
@@ -48,17 +48,19 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
     		/// Registered catalogs are automatically loaded on application startup.
     		/// Use "false" for catalogs that are to be loaded dynamicaly.
     		/// </summary>
-    		public bool register = true;
+    		public bool registerToSettings = true;
+
+		    public bool IsDefaultCatalog => string.Equals(identifier, "AddressablesMainContentCatalog");
 
     		/// <summary>
     		/// Construct an empty catalog build info.
     		/// </summary>
     		/// <param name="identifier">the identifier</param>
-    		/// <param name="catalogFileName">the json filename</param>
-    		public CatalogBuildInfo(string identifier, string catalogFileName)
+    		/// <param name="fileName">the json filename</param>
+    		public CatalogBuildInfo(string identifier, string fileName)
     		{
     			this.identifier = identifier;
-    			this.catalogFileName = catalogFileName;
+    			this.fileName = fileName;
     		}
     	}
 }

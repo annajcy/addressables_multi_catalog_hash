@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEditor;
-using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Build;
 using UnityEditor.AddressableAssets.Build.BuildPipelineTasks;
 using UnityEditor.AddressableAssets.Build.DataBuilders;
@@ -20,7 +19,6 @@ using UnityEngine.AddressableAssets.Initialization;
 using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.AddressableAssets.ResourceProviders;
 using UnityEngine.Build.Pipeline;
-using UnityEngine.Events;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.ResourceManagement.Util;
 using static UnityEditor.AddressableAssets.Build.ContentUpdateScript;
@@ -40,17 +38,22 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
         /// <inheritdoc />
         public override string Name => "Multi Catalog Hash Build Script";
         public List<ExternalCatalog> externalCatalogs = new List<ExternalCatalog>();
+        public bool buildDefaultCatalogInRemote = false;
 
         private string catalogBuildPath = string.Empty;
         private HashSet<string> createdProviderIds = new HashSet<string>();
         private LinkXmlGenerator linker = LinkXmlGenerator.CreateDefault();
         private List<ObjectInitializationData> resourceProviderData = new List<ObjectInitializationData>();
         private List<AssetBundleBuild> allBundleInputDefs = new List<AssetBundleBuild>();
-        private List<CatalogSetup> catalogSetups = new List<CatalogSetup>();
-        private Dictionary<string, string> bundleToInternalId = new Dictionary<string, string>();
+        private readonly List<CatalogSetup> catalogSetups = new List<CatalogSetup>();
+        private readonly Dictionary<string, string> bundleToInternalId = new Dictionary<string, string>();
         private Dictionary<string, List<ContentCatalogDataEntry>> primaryKeyToDependers = new Dictionary<string, List<ContentCatalogDataEntry>>();
         private Dictionary<string, ContentCatalogDataEntry> primaryKeyToLocation = new Dictionary<string, ContentCatalogDataEntry>();
         private Dictionary<AddressableAssetGroup, (string, string)[]> groupToBundleNames = new Dictionary<AddressableAssetGroup, (string, string)[]>();
+
+        // Tests can set this flag to prevent player script compilation. This is the most expensive part of small builds
+        // and isn't needed for most tests.
+        private static bool skipCompilePlayerScripts = false;
 
         private Dictionary<string, List<ContentCatalogDataEntry>> GetPrimaryKeyToDependerLocations(List<ContentCatalogDataEntry> locations)
         {
@@ -113,11 +116,10 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
         /// <inheritdoc />
         protected override TResult BuildDataImplementation<TResult>(AddressablesDataBuilderInput builderInput)
         {
-
             NotifyUserAboutBuildReport();
 
             TResult result = default(TResult);
-            m_IncludedGroupsInBuild?.Clear();
+            includedGroupsInBuild?.Clear();
 
             InitializeBuildContext(builderInput, out AddressableAssetsBuildContext aaContext);
 
@@ -128,19 +130,16 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
                     result = CreateErrorResult<TResult>(errorString, builderInput, aaContext);
             }
 
-            if (result == null)
-            {
-                result = DoBuild<TResult>(builderInput, aaContext);
-            }
+            result ??= DoBuild<TResult>(builderInput, aaContext);
 
             if (result == null)
-                return result;
+                return default;
 
             var span = DateTime.Now - aaContext.buildStartTime;
             result.Duration = span.TotalSeconds;
             if (string.IsNullOrEmpty(result.Error))
             {
-                ClearContentUpdateNotifications(m_IncludedGroupsInBuild);
+                ClearContentUpdateNotifications(includedGroupsInBuild);
             }
             DisplayBuildReport();
             return result;
@@ -152,7 +151,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             return AddressableAssetBuildResult.CreateResult<TResult>(null, 0, errorString);
         }
 
-        internal void InitializeBuildContext(AddressablesDataBuilderInput builderInput, out AddressableAssetsBuildContext aaContext)
+        private void InitializeBuildContext(AddressablesDataBuilderInput builderInput, out AddressableAssetsBuildContext aaContext)
         {
             var now = DateTime.Now;
             var aaSettings = builderInput.AddressableSettings;
@@ -497,7 +496,15 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
 
                 # region Generate Catalog Files
 
-                using (Log.ScopedStep(LogLevel.Info, "Generate Catalog"))
+                string catalogType =
+
+#if ENABLE_JSON_CATALOG
+                    "Json";
+#else
+                    "bin";
+#endif
+
+                using (Log.ScopedStep(LogLevel.Info, $"Generate {catalogType} Catalog"))
                 {
                     if (addrResult != null)
                     {
@@ -532,6 +539,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
                     string jsonText = null;
                     using (Log.ScopedStep(LogLevel.Info, "Generating Json"))
                         jsonText = JsonUtility.ToJson(contentCatalog);
+
                     if (aaContext.Settings.BuildRemoteCatalog || ProjectConfigData.GenerateBuildLayout)
                     {
                         string contentHash = null;
@@ -543,13 +551,19 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
                     CreateCatalogFiles(jsonText, catalogInfo.identifier, catalogInfo.catalogFileName,  builderInput, aaContext);
 #else
                     //save binary catalog
-                    var bytes = contentCatalog.SerializeToByteArray();
-                    var contentHash = HashingMethods.Calculate(bytes);
+                    byte[] bytes = null;
+                    using (Log.ScopedStep(LogLevel.Info, "Generating Bin"))
+                        bytes = contentCatalog.SerializeToByteArray();
 
                     if (aaContext.Settings.BuildRemoteCatalog || ProjectConfigData.GenerateBuildLayout)
-                        contentCatalog.LocalHash = contentHash.ToString();
+                    {
+                        string contentHash = null;
+                        using (Log.ScopedStep(LogLevel.Info, "Hashing Catalog"))
+                            contentHash = HashingMethods.Calculate(bytes).ToString();
+                        contentCatalog.LocalHash = contentHash;
+                    }
 
-                    CreateCatalogFiles(bytes, catalogInfo.identifier, catalogInfo.catalogFileName, builderInput, aaContext);
+                    CreateCatalogFiles(bytes, catalogInfo, builderInput, aaContext);
 #endif
 
                 }
@@ -717,9 +731,10 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
 #else
             byte[] data,
 #endif
-            string identifier, string fileName, AddressablesDataBuilderInput builderInput, AddressableAssetsBuildContext aaContext)
+             CatalogBuildInfo catalogBuildInfo, AddressablesDataBuilderInput builderInput, AddressableAssetsBuildContext aaContext)
         {
-
+            string identifier = catalogBuildInfo.identifier;
+            string fileName = catalogBuildInfo.fileName;
             if (
 #if ENABLE_JSON_CATALOG
                 string.IsNullOrEmpty(jsonText)
@@ -736,13 +751,14 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             string localLoadPath = "{UnityEngine.AddressableAssets.Addressables.RuntimePath}/" +
                                    StringUtility.AppendFileNameExtension(fileName);
 
+            string remoteLoadPath = $"{catalogBuildInfo.loadPath}/" + StringUtility.AppendFileNameExtension(fileName + "_" + builderInput.PlayerVersion);
+
 
 #if ENABLE_JSON_CATALOG
             var catalogHash = HashingMethods.Calculate(jsonText);
 #else
             var catalogHash = HashingMethods.Calculate(data);
 #endif
-
 
             catalogBuildPath = Path.Combine(Addressables.BuildPath,
                 StringUtility.AppendFileNameExtension(fileName));
@@ -765,32 +781,37 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
                 WriteFile(catalogBuildPath.Replace(".json", ".hash"), catalogHash.ToString(), builderInput.Registry);
             }
 #else
-            WriteFile(catalogBuildPath, data, builderInput.Registry);
-            WriteFile(catalogBuildPath.Replace(".bin", ".hash"), catalogHash.ToString(), builderInput.Registry);
-#endif
-
-
-            string[] dependencyHashes = null;
-            if (aaContext.Settings.BuildRemoteCatalog)
+            if (catalogBuildInfo.IsDefaultCatalog || catalogBuildInfo.registerToSettings)
             {
-                dependencyHashes = CreateRemoteCatalog(
-#if ENABLE_JSON_CATALOG
-                    jsonText
-#else
-                    data
-#endif
-                    ,
-                    aaContext.runtimeData.CatalogLocations,
-                    aaContext.Settings,
-                    builderInput,
-                    new ProviderLoadRequestOptions
-                        {IgnoreFailures = true},
-                    catalogHash.ToString(),
-                    fileName,
-                    identifier);
+                WriteFile(catalogBuildPath, data, builderInput.Registry);
+                WriteFile(catalogBuildPath.Replace(".bin", ".hash"), catalogHash.ToString(), builderInput.Registry);
             }
 
-            ResourceLocationData localCatalog = new ResourceLocationData(
+#endif
+            string[] dependencyHashes = null;
+
+            if (aaContext.Settings.BuildRemoteCatalog)
+            {
+                if (!catalogBuildInfo.IsDefaultCatalog ||
+                    (catalogBuildInfo.IsDefaultCatalog && buildDefaultCatalogInRemote) )
+                {
+                    dependencyHashes = CreateRemoteCatalog(
+#if ENABLE_JSON_CATALOG
+                    jsonText,
+#else
+                        data,
+#endif
+                        aaContext.runtimeData.CatalogLocations,
+                        aaContext.Settings,
+                        builderInput,
+                        new ProviderLoadRequestOptions
+                            {IgnoreFailures = true},
+                        catalogHash.ToString(),
+                        catalogBuildInfo);
+                }
+            }
+
+            ResourceLocationData targetCatalog = new ResourceLocationData(
                 new[] {identifier},
                 localLoadPath,
                 typeof(ContentCatalogProvider),
@@ -801,7 +822,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
                 Data = new ProviderLoadRequestOptions { IgnoreFailures = true }
             };
 
-            aaContext.runtimeData.CatalogLocations.Add(localCatalog);
+            if (catalogBuildInfo.registerToSettings) aaContext.runtimeData.CatalogLocations.Add(targetCatalog);
             return true;
         }
 
@@ -882,9 +903,11 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             byte[] data
 #endif
             , List<ResourceLocationData> locations, AddressableAssetSettings aaSettings, AddressablesDataBuilderInput builderInput,
-            ProviderLoadRequestOptions catalogLoadOptions, string contentHash, string fileName, string identifier)
+            ProviderLoadRequestOptions catalogLoadOptions, string contentHash, CatalogBuildInfo catalogBuildInfo)
         {
             string[] dependencyHashes = null;
+            string fileName = catalogBuildInfo.fileName;
+            string identifier = catalogBuildInfo.identifier;
 
             if (string.IsNullOrEmpty(contentHash))
             {
@@ -936,7 +959,8 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
                 {
                     Data = catalogLoadOptions.Copy()
                 };
-                locations.Add(remoteHashLoadLocation);
+
+                if (catalogBuildInfo.registerToSettings) locations.Add(remoteHashLoadLocation);
 
 #if UNITY_SWITCH
                 var cacheLoadPath = remoteHashLoadPath; // ResourceLocationBase does not allow empty string id
@@ -950,14 +974,14 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
                 {
                     Data = catalogLoadOptions.Copy()
                 };
-                locations.Add(cacheLoadLocation);
+                if (catalogBuildInfo.registerToSettings) locations.Add(cacheLoadLocation);
 
                 var localCatalogLoadPath = "{UnityEngine.AddressableAssets.Addressables.RuntimePath}/" + $"{fileName.Split('.').First()}.hash";
                 var localLoadLocation = new ResourceLocationData(
                     new[] { dependencyHashes[(int)ContentCatalogProvider.DependencyHashIndex.Local] },
                     localCatalogLoadPath,
                     typeof(TextDataProvider), typeof(string));
-                locations.Add(localLoadLocation);
+                if (catalogBuildInfo.registerToSettings) locations.Add(localLoadLocation);
             }
 
             return dependencyHashes;
@@ -982,15 +1006,14 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
                 {
                     string file = files[0];
                     string fullBundleName = writeData.FileToBundle[file];
-                    string convertedLocation;
 
-                    if (!bundleNameToInternalBundleIdMap.TryGetValue(fullBundleName, out convertedLocation))
+                    if (!bundleNameToInternalBundleIdMap.TryGetValue(fullBundleName, out var convertedLocation))
                     {
                         Debug.LogException(new Exception($"Unable to find bundleId for key: {fullBundleName}."));
                     }
 
-                    if (locationIdToCatalogEntryMap.TryGetValue(convertedLocation,
-                        out ContentCatalogDataEntry catalogEntry))
+                    if (convertedLocation != null && locationIdToCatalogEntryMap.TryGetValue(convertedLocation,
+                            out ContentCatalogDataEntry catalogEntry))
                     {
                         loc.BundleFileId = catalogEntry.InternalId;
 
@@ -1054,7 +1077,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
         /// <summary>
         /// A temporary list of the groups that get processed during a build.
         /// </summary>
-        List<AddressableAssetGroup> m_IncludedGroupsInBuild = new List<AddressableAssetGroup>();
+        private List<AddressableAssetGroup> includedGroupsInBuild = new List<AddressableAssetGroup>();
 
         /// <summary>
         /// The processing of the bundled asset schema.  This is where the bundle(s) for a given group are actually setup.
@@ -1071,14 +1094,13 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             if (schema == null || !schema.IncludeInBuild || !assetGroup.entries.Any())
                 return string.Empty;
 
-            m_IncludedGroupsInBuild?.Add(assetGroup);
+            includedGroupsInBuild?.Add(assetGroup);
 
             AddBundleProvider(schema);
 
             var assetProviderId = schema.GetAssetCachedProviderId();
-            if (!createdProviderIds.Contains(assetProviderId))
+            if (createdProviderIds.Add(assetProviderId))
             {
-                createdProviderIds.Add(assetProviderId);
                 var assetProviderType = schema.BundledAssetProviderType.Value;
                 var assetProviderData = ObjectInitializationData.CreateSerializedInitializationData(assetProviderType, assetProviderId);
                 resourceProviderData.Add(assetProviderData);
@@ -1110,7 +1132,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             return string.Empty;
         }
 
-        internal static List<string> HandleBundleNames(List<AssetBundleBuild> bundleInputDefs, Dictionary<string, string> bundleToAssetGroup = null, string assetGroupGuid = null)
+        private static List<string> HandleBundleNames(List<AssetBundleBuild> bundleInputDefs, Dictionary<string, string> bundleToAssetGroup = null, string assetGroupGuid = null)
         {
             var generatedUniqueNames = new List<string>();
             var handledNames = new HashSet<string>();
@@ -1124,7 +1146,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
                     int count = 1;
                     var newName = assetBundleName;
                     while (handledNames.Contains(newName) && count < 1000)
-                        newName = assetBundleName.Replace(".bundle", string.Format("{0}.bundle", count++));
+                        newName = assetBundleName.Replace(".bundle", $"{count++}.bundle");
                     assetBundleName = newName;
                 }
 
@@ -1142,7 +1164,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             return generatedUniqueNames;
         }
 
-        internal static string CalculateGroupHash(BundledAssetGroupSchema.BundleInternalIdMode mode, AddressableAssetGroup assetGroup, IEnumerable<AddressableAssetEntry> entries)
+        private static string CalculateGroupHash(BundledAssetGroupSchema.BundleInternalIdMode mode, AddressableAssetGroup assetGroup, IEnumerable<AddressableAssetEntry> entries)
         {
             switch (mode)
             {
@@ -1163,7 +1185,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
         /// <param name="schema">The BundledAssetGroupSchema of used to process the assetGroup.</param>
         /// <param name="entryFilter">A filter to remove AddressableAssetEntries from being processed in the build.</param>
         /// <returns>The total list of AddressableAssetEntries that were processed.</returns>
-        public static List<AddressableAssetEntry> PrepGroupBundlePacking(AddressableAssetGroup assetGroup, List<AssetBundleBuild> bundleInputDefs, BundledAssetGroupSchema schema,
+        private static List<AddressableAssetEntry> PrepGroupBundlePacking(AddressableAssetGroup assetGroup, List<AssetBundleBuild> bundleInputDefs, BundledAssetGroupSchema schema,
             Func<AddressableAssetEntry, bool> entryFilter = null)
         {
             var combinedEntries = new List<AddressableAssetEntry>();
@@ -1239,7 +1261,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             return combinedEntries;
         }
 
-        internal static void GenerateBuildInputDefinitions(List<AddressableAssetEntry> allEntries, List<AssetBundleBuild> buildInputDefs, string groupGuid, string address,
+        private static void GenerateBuildInputDefinitions(List<AddressableAssetEntry> allEntries, List<AssetBundleBuild> buildInputDefs, string groupGuid, string address,
             bool ignoreUnsupportedFilesInBuild)
         {
             var scenes = new List<AddressableAssetEntry>();
@@ -1284,9 +1306,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             return assetsInputDef;
         }
 
-        // Tests can set this flag to prevent player script compilation. This is the most expensive part of small builds
-        // and isn't needed for most tests.
-        internal static bool s_SkipCompilePlayerScripts = false;
+
 
         static IList<IBuildTask> RuntimeDataBuildTasks(string builtinBundleName, string monoScriptBundleName)
         {
@@ -1297,7 +1317,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             buildTasks.Add(new RebuildSpriteAtlasCache());
 
             // Player Scripts
-            if (!s_SkipCompilePlayerScripts)
+            if (!skipCompilePlayerScripts)
                 buildTasks.Add(new BuildPlayerScripts());
             buildTasks.Add(new PostScriptsCallback());
 
@@ -1367,23 +1387,23 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             if (groupToBundleNames.TryGetValue(assetGroup, out (string, string)[] bundleValues))
             {
                 outputBundleNames = new List<string>(builtBundleNames.Count);
-                for (int i = 0; i < builtBundleNames.Count; ++i)
+                foreach (var bundleName in builtBundleNames)
                 {
                     string outputName = null;
                     foreach ((string, string)bundleValue in bundleValues)
                     {
                         if (schema.BundleMode == BundledAssetGroupSchema.BundlePackingMode.PackSeparately)
                         {
-                            if (builtBundleNames[i].StartsWith(bundleValue.Item1, StringComparison.Ordinal))
+                            if (bundleName.StartsWith(bundleValue.Item1, StringComparison.Ordinal))
                                 outputName = bundleValue.Item2;
                         }
-                        else if (builtBundleNames[i].Equals(bundleValue.Item1, StringComparison.Ordinal))
+                        else if (bundleName.Equals(bundleValue.Item1, StringComparison.Ordinal))
                             outputName = bundleValue.Item2;
 
                         if (outputName != null)
                             break;
                     }
-                    outputBundleNames.Add(string.IsNullOrEmpty(outputName) ? builtBundleNames[i] : outputName);
+                    outputBundleNames.Add(string.IsNullOrEmpty(outputName) ? bundleName : outputName);
                 }
             }
             else

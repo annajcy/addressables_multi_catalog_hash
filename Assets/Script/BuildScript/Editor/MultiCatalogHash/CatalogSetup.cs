@@ -48,7 +48,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             if (string.IsNullOrEmpty(catalogBuildInfo.loadPath))
                 catalogBuildInfo.loadPath = profileSettings.EvaluateString(profileId, externalCatalog.RuntimeLoadPath.Id);
 
-            catalogBuildInfo.register = false;
+            catalogBuildInfo.registerToSettings = !aaContext.Settings.DisableCatalogUpdateOnStartup;
         }
     }
 }
