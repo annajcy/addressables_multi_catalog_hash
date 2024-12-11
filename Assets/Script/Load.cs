@@ -7,7 +7,7 @@ namespace Script
 {
     public class Load : MonoBehaviour
     {
-        private void Load0()
+        private void LoadDLC()
         {
             var cleanBundleCache = Addressables.CleanBundleCache();
             cleanBundleCache.Completed += clearCacheHandle =>
@@ -69,56 +69,6 @@ namespace Script
             };
         }
 
-        private void Load1()
-        {
-            var cleanBundleCache = Addressables.CleanBundleCache();
-            cleanBundleCache.Completed += clearCacheHandle =>
-            {
-                if (clearCacheHandle.Status == AsyncOperationStatus.Succeeded)
-                {
-                    if (!clearCacheHandle.Result) return;
-                    var handle1 = Addressables.LoadAssetAsync<GameObject>("Cube 1");
-                    handle1.Completed += handle =>
-                    {
-                        if (handle.Status == AsyncOperationStatus.Succeeded)
-                            Instantiate(handle.Result);
-                    };
-
-                    var handle4 = Addressables.LoadAssetAsync<GameObject>("Cube 2");
-                    handle4.Completed += handle =>
-                    {
-                        if (handle.Status == AsyncOperationStatus.Succeeded)
-                            Instantiate(handle.Result);
-                    };
-
-                    var handle2 = Addressables.LoadAssetAsync<GameObject>("Cube 3");
-                    handle2.Completed += handle =>
-                    {
-                        if (handle.Status == AsyncOperationStatus.Succeeded)
-                            Instantiate(handle.Result);
-                    };
-
-                    var handle3 = Addressables.LoadAssetAsync<GameObject>("Cube 4");
-                    handle3.Completed += handle =>
-                    {
-                        if (handle.Status == AsyncOperationStatus.Succeeded)
-                            Instantiate(handle.Result);
-                    };
-
-                    var handle0 = Addressables.LoadAssetAsync<GameObject>("Cube");
-                    handle0.Completed += handle =>
-                    {
-                        if (handle.Status == AsyncOperationStatus.Succeeded)
-                            Instantiate(handle.Result);
-                    };
-                }
-            };
-
-        }
-        private void Start()
-        {
-            Load0();
-            //Load1();
-        }
+        private void Start() { LoadDLC(); }
     }
 }
