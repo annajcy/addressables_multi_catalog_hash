@@ -576,7 +576,6 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
 
                     CreateCatalogFiles(bytes, catalogInfo, builderInput, aaContext);
 #endif
-
                 }
 
                 #endregion
@@ -934,8 +933,21 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
 
             var versionedFileName = aaSettings.profileSettings.EvaluateString(aaSettings.activeProfileId,
                 $"/{fileName}_" + builderInput.PlayerVersion);
-            var remoteBuildFolder = catalogBuildInfo.buildPath;
-            var remoteLoadFolder = catalogBuildInfo.loadPath;
+
+            string remoteBuildFolder;
+            string remoteLoadFolder;
+
+            if (catalogBuildInfo.IsDefaultCatalog)
+            {
+                remoteBuildFolder = aaSettings.RemoteCatalogBuildPath.GetValue(aaSettings);
+                remoteLoadFolder = aaSettings.RemoteCatalogLoadPath.GetValue(aaSettings);
+                remoteLoadFolder = remoteLoadFolder.Remove(remoteLoadFolder.Length - 1);
+            }
+            else
+            {
+                remoteBuildFolder = catalogBuildInfo.buildPath;
+                remoteLoadFolder = catalogBuildInfo.loadPath;
+            }
 
             if (string.IsNullOrEmpty(remoteBuildFolder) ||
                 string.IsNullOrEmpty(remoteLoadFolder) ||
@@ -1498,7 +1510,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             }
         }
 
-        internal void AddPostCatalogUpdatesInternal(AddressableAssetGroup assetGroup, List<Action> postCatalogUpdates, ContentCatalogDataEntry dataEntry, string targetBundlePath,
+        private void AddPostCatalogUpdatesInternal(AddressableAssetGroup assetGroup, List<Action> postCatalogUpdates, ContentCatalogDataEntry dataEntry, string targetBundlePath,
             FileRegistry registry)
         {
             if (assetGroup.GetSchema<BundledAssetGroupSchema>()?.BundleNaming ==
@@ -1533,7 +1545,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
         }
 
         // if false, there is no need to remove the hash from dataEntry.InternalId
-        bool DataEntryDiffersFromBundleFilename(ContentCatalogDataEntry dataEntry, string bundlePathWithoutHash)
+        private bool DataEntryDiffersFromBundleFilename(ContentCatalogDataEntry dataEntry, string bundlePathWithoutHash)
         {
             string dataEntryId = dataEntry.InternalId;
             string dataEntryFilename = Path.GetFileName(dataEntryId);

@@ -15,8 +15,7 @@ namespace Script
                 if (clearCacheHandle.Status == AsyncOperationStatus.Succeeded)
                 {
                     if (!clearCacheHandle.Result) return;
-                    var dlc1Handle =
-                    Addressables.LoadContentCatalogAsync("http://127.0.0.1:8085/StandaloneOSX/DLC1/DLC1_0.1.0.json");
+                    var dlc1Handle = Addressables.LoadContentCatalogAsync("http://127.0.0.1:8085/StandaloneOSX/DLC1/DLC1_0.1.0.bin");
                     dlc1Handle.Completed += resHandle =>
                     {
                         if (resHandle.Status == AsyncOperationStatus.Succeeded)
@@ -38,7 +37,7 @@ namespace Script
                         else Debug.LogError("catalog load failed: dlc1");
                     };
 
-                    var dlc2Handle = Addressables.LoadContentCatalogAsync("http://127.0.0.1:8085/StandaloneOSX/DLC2/DLC2_0.1.0.json");
+                    var dlc2Handle = Addressables.LoadContentCatalogAsync("http://127.0.0.1:8085/StandaloneOSX/DLC2/DLC2_0.1.0.bin");
                     dlc2Handle.Completed += resHandle =>
                     {
                         if (resHandle.Status == AsyncOperationStatus.Succeeded)
