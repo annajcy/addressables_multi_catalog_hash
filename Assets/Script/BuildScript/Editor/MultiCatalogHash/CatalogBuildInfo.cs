@@ -13,7 +13,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
     		///
     		/// Note that "AddressablesMainContentCatalog" is used for the default main catalog.
     		/// </summary>
-    		public readonly string identifier;
+    		public string identifier;
 
     		/// <summary>
     		/// The filename of the JSON file to contain the catalog data.

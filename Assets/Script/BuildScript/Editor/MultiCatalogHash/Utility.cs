@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using UnityEditor;
 
 namespace Script.BuildScript.Editor.MultiCatalogHash
@@ -84,7 +85,23 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
             return path;
         }
 
-        public static char PathSeparatorForPlatform(BuildTarget target)
+        public static string ReplaceIPAddress(string url, string ipAddress)
+        {
+            if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(ipAddress))
+            {
+                throw new ArgumentException("URL or IP address cannot be null or empty.");
+            }
+
+            // 匹配 IP 地址和端口号的正则表达式
+            string pattern = @"(?<=://)(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?|[a-zA-Z0-9\.\-]+(:\d+)?)(?=/|$)";
+
+            // 使用正则表达式替换 URL 中的 IP 地址和端口号
+            string replacedUrl = Regex.Replace(url, pattern, ipAddress);
+
+            return replacedUrl;
+        }
+
+        private static char PathSeparatorForPlatform(BuildTarget target)
         {
             switch (target)
             {

@@ -23,3 +23,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2a7466424122d4943a7ce5a71477d13a, type: 2}
   buildDefaultCatalogInRemote: 1
   generateBundlesInFolders: 1
+  generateAlternativeRemoteIP: 1
+  alternativeRemoteIP: {fileID: 11400000, guid: b12028039c98b4f89aa2a6c9c6a8bf03, type: 2}
