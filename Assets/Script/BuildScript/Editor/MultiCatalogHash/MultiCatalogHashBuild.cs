@@ -40,6 +40,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
         public override string Name => "Multi Catalog Hash Build Script";
         public List<ExternalCatalog> externalCatalogs = new List<ExternalCatalog>();
         public bool buildDefaultCatalogInRemote = false;
+        public bool generateBundlesInFolders = true;
 
         private string catalogBuildPath = string.Empty;
         private HashSet<string> createdProviderIds = new HashSet<string>();
@@ -320,7 +321,7 @@ namespace Script.BuildScript.Editor.MultiCatalogHash
                 if (preferredCatalog != null)
                 {
 
-                    if (dataEntry.Dependencies.Count == 0)
+                    if (generateBundlesInFolders && dataEntry.Dependencies.Count == 0)
                     {
                         Utility.MoveFile(preferredCatalog.catalogBuildInfo.rootBuildPath + $"/{fileName}" ,
                             preferredCatalog.catalogBuildInfo.buildPath);
