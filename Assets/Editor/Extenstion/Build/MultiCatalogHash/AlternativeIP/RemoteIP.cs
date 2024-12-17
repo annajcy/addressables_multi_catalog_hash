@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Script.BuildScript.Editor.MultiCatalogHash.AlternativeIP
+namespace Editor.Extenstion.Build.MultiCatalogHash.AlternativeIP
 {
     [Serializable]
     public class RemoteIPListWrapper

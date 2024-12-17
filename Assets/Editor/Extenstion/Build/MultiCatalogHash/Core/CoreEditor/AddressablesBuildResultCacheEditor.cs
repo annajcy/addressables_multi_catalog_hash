@@ -1,10 +1,9 @@
 using System.Globalization;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
-namespace Script.BuildScript.Editor.MultiCatalogHash.Core.CoreEditor
+namespace Editor.Extenstion.Build.MultiCatalogHash.Core.CoreEditor
 {
     [CustomEditor(typeof(AddressablesBuildResultCache))]
     public class AddressablesBuildResultCacheEditor : UnityEditor.Editor

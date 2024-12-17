@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Script.BuildScript.Editor.MultiCatalogHash.AlternativeIP;
-using Script.BuildScript.Editor.MultiCatalogHash.Tools;
+using Editor.Extenstion.Build.MultiCatalogHash.AlternativeIP;
+using Editor.Extenstion.Build.MultiCatalogHash.Tools;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Build;
@@ -28,7 +28,7 @@ using static UnityEditor.AddressableAssets.Build.ContentUpdateScript;
 using Object = System.Object;
 
 
-namespace Script.BuildScript.Editor.MultiCatalogHash.Core
+namespace Editor.Extenstion.Build.MultiCatalogHash.Core
 {
     using Debug = UnityEngine.Debug;
 

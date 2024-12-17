@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Script.BuildScript.Editor.MultiCatalogHash.AlternativeIP.IPEditor
+namespace Editor.Extenstion.Build.MultiCatalogHash.AlternativeIP.IPEditor
 {
     [UnityEditor.CustomEditor(typeof(AlternativeRemoteIP))]
     public class AlternativeRemoteIPEditor : UnityEditor.Editor

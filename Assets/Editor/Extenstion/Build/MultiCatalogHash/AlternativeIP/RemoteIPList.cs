@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Script.BuildScript.Editor.MultiCatalogHash.AlternativeIP
+namespace Editor.Extenstion.Build.MultiCatalogHash.AlternativeIP
 {
     [CreateAssetMenu(menuName = "Addressables/Remote IP List", fileName = "RemoteIPList")]
     public class RemoteIPList : ScriptableObject

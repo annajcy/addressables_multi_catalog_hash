@@ -3,7 +3,7 @@ using UnityEditor.AddressableAssets.Build;
 using UnityEditor.AddressableAssets.Build.DataBuilders;
 using UnityEngine;
 
-namespace Script.BuildScript.Editor.MultiCatalogHash.Core
+namespace Editor.Extenstion.Build.MultiCatalogHash.Core
 {
     [CreateAssetMenu(menuName = "Addressables/Addressables Build Result Cache", fileName = "AddressablesBuildResultCache")]
 

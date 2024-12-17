@@ -1,11 +1,7 @@
-using System.Globalization;
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEditor;
-using UnityEditor.AddressableAssets.Build;
 using UnityEngine;
 
-namespace Script.BuildScript.Editor.MultiCatalogHash.Core.CoreEditor
+namespace Editor.Extenstion.Build.MultiCatalogHash.Core.CoreEditor
 {
     [CustomEditor(typeof(MultiCatalogHashBuild))]
     public class MultiCatalogHashBuildEditor : UnityEditor.Editor

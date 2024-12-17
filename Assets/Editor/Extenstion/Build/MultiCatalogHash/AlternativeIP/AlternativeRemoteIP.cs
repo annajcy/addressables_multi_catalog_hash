@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Script.BuildScript.Editor.MultiCatalogHash.AlternativeIP
+namespace Editor.Extenstion.Build.MultiCatalogHash.AlternativeIP
 {
     [CreateAssetMenu(menuName = "Addressables/Alternative Remote IP", fileName = "AlternativeRemoteIPSetup")]
     public class AlternativeRemoteIP : ScriptableObject
