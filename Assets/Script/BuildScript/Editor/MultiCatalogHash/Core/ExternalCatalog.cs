@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.ResourceProviders;
 
-namespace Script.BuildScript.Editor.MultiCatalogHash
+namespace Script.BuildScript.Editor.MultiCatalogHash.Core
 {
 	/// <summary>
 	/// Separate catalog for the assigned asset groups.

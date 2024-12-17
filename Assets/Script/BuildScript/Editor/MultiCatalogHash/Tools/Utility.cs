@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using UnityEditor;
 
-namespace Script.BuildScript.Editor.MultiCatalogHash
+namespace Script.BuildScript.Editor.MultiCatalogHash.Tools
 {
     /// <summary>
     /// The BuildTask used to create location lists for Addressable assets.

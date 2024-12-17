@@ -1,9 +1,8 @@
 using System;
-using System.IO;
 using UnityEditor.AddressableAssets.Build;
 using UnityEditor.AddressableAssets.Build.DataBuilders;
 
-namespace Script.BuildScript.Editor.MultiCatalogHash
+namespace Script.BuildScript.Editor.MultiCatalogHash.Core
 {
     public class CatalogSetup
     {

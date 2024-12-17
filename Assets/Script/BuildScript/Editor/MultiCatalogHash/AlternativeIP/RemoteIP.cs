@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
-namespace Script.BuildScript.Editor.MultiCatalogHash.IPConfiguration
+namespace Script.BuildScript.Editor.MultiCatalogHash.AlternativeIP
 {
     [Serializable]
     public class RemoteIPListWrapper

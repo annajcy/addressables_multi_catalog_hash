@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine.AddressableAssets.ResourceLocators;
 
-namespace Script.BuildScript.Editor.MultiCatalogHash
+namespace Script.BuildScript.Editor.MultiCatalogHash.Core
 {
 		/// <summary>
     	/// Contains information about a catalog to be built.

@@ -3,7 +3,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace Script.BuildScript.Editor.MultiCatalogHash.IPConfiguration.IPEditor
+namespace Script.BuildScript.Editor.MultiCatalogHash.AlternativeIP.IPEditor
 {
     [UnityEditor.CustomEditor(typeof(RemoteIPList))]
     public class RemoteIPListEditor : UnityEditor.Editor
