@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine.AddressableAssets.ResourceLocators;
 
@@ -6,6 +7,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
 		/// <summary>
     	/// Contains information about a catalog to be built.
     	/// </summary>
+    	[Serializable]
     	public class CatalogBuildInfo
     	{
     		/// <summary>
@@ -20,17 +22,17 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
     		///
     		/// Note that the default main catalog is written to "catalog.json"
     		/// </summary>
-    		public readonly string fileName;
+    		public string fileName;
 
     		/// <summary>
     		/// The locations, i.e., the addressable assets, contained in this catalog.
     		/// </summary>
-    		public readonly List<ContentCatalogDataEntry> locations = new List<ContentCatalogDataEntry>();
+    		public List<ContentCatalogDataEntry> locations = new List<ContentCatalogDataEntry>();
 
 		    /// <summary>
 		    /// Included bundles when generating result hash
 		    /// </summary>
-		    public readonly List<string> includedBundles = new List<string>();
+		    public List<string> includedBundles = new List<string>();
 
     		/// <summary>
     		/// The directory path this catalog is expected to be build.

@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 
 namespace Editor.Extenstion.Build.MultiCatalogHash.Core.CoreEditor
@@ -6,6 +7,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.CoreEditor
     [CustomEditor(typeof(MultiCatalogHashBuild))]
     public class MultiCatalogHashBuildEditor : UnityEditor.Editor
     {
+        public AddressableAssetSettings addressableAssetSettings;
         // 用于引用目标 ScriptableObject
         private MultiCatalogHashBuild multiCatalogHashBuild;
 
@@ -27,9 +29,9 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.CoreEditor
                 else
                 {
                     multiCatalogHashBuild.BuildAlternativeRemoteIPCatalog(
-                        multiCatalogHashBuild.buildResultCache.builderInput,
-                        multiCatalogHashBuild.buildResultCache.aaContext,
-                        multiCatalogHashBuild.buildResultCache.buildResult,
+                        multiCatalogHashBuild.buildResultCache.builderInput.ToOriginal(addressableAssetSettings),
+                        multiCatalogHashBuild.buildResultCache.aaContext.ToOriginal(),
+                        multiCatalogHashBuild.buildResultCache.buildResult.ToOriginal(),
                         multiCatalogHashBuild.buildResultCache.catalogs);
                     Debug.Log("Build Alternative Remote IP Catalog Performed for MultiCatalogHashBuild.");
                 }

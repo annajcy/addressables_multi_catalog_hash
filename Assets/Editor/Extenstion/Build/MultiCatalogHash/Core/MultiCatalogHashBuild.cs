@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Editor.Extenstion.Build.MultiCatalogHash.AlternativeIP;
 using Editor.Extenstion.Build.MultiCatalogHash.Tools;
+using Unity.Plastic.Newtonsoft.Json;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Build;
@@ -393,14 +394,15 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
                 AddressablesPlayerBuildResult addrResult,
                 List<CatalogBuildInfo> catalogs)
         {
-            alternativeRemoteIP.LoadRemoteIps();
-            if (alternativeRemoteIP.remoteIps.Count != 0)
+            if (alternativeRemoteIP.LoadRemoteIps() && alternativeRemoteIP.remoteIps.Count != 0)
             {
                 var remoteCatalogs = catalogs;
                 remoteCatalogs.RemoveAt(0);
                 remoteCatalogs.ForEach(catalogInfo =>
                 {
                     var buildPath = catalogInfo.buildPath;
+                    var loadPath = catalogInfo.loadPath;
+
                     foreach (var ip in alternativeRemoteIP.remoteIps)
                     {
                         foreach (var catalogDataEntry in catalogInfo.locations)
@@ -411,9 +413,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
                                 ip.Address);
                         }
 
-                        catalogInfo.loadPath = Utility.ReplaceIPAddress(
-                            catalogInfo.loadPath,
-                            ip.Address);
+                        catalogInfo.loadPath = Utility.ReplaceIPAddress(loadPath, ip.Address);
                         catalogInfo.buildPath = buildPath + "_" + ip.identifier;
 
                         var contentCatalog = new ContentCatalogData(catalogInfo.identifier);
@@ -492,6 +492,9 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
 
                         #endregion
                     }
+
+                    catalogInfo.buildPath = buildPath;
+                    catalogInfo.loadPath = loadPath;
                 });
             }
         }
@@ -610,17 +613,22 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
                     }
                 }
 
-                buildResultCache.aaContext = aaContext;
-                buildResultCache.builderInput = builderInput;
-                buildResultCache.buildResult = addrResult;
+
             }
+
+
 
             #endregion
 
             #region Build Catalog
 
             var catalogs = GetContentCatalogs(builderInput, aaContext);
+
+            buildResultCache.aaContext = aaContext;
+            buildResultCache.builderInput = builderInput;
+            buildResultCache.buildResult = addrResult;
             buildResultCache.catalogs = catalogs;
+
             catalogs.ForEach(catalogInfo =>
             {
                 var contentCatalog = new ContentCatalogData(catalogInfo.identifier);
@@ -967,7 +975,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
         }
 
 #if ENABLE_JSON_CATALOG
-        internal ReturnCode CreateCatalogBundle(string filepath, string jsonText, AddressablesDataBuilderInput builderInput)
+        private ReturnCode CreateCatalogBundle(string filepath, string jsonText, AddressablesDataBuilderInput builderInput)
         {
             if (string.IsNullOrEmpty(filepath) || string.IsNullOrEmpty(jsonText) || builderInput == null)
             {
@@ -996,7 +1004,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
                 {
                     assetBundleName = Path.GetFileName(filepath),
                     assetNames = new[] {tempFilePath},
-                    addressableNames = new string[0]
+                    addressableNames = Array.Empty<string>()
                 }
             });
 
@@ -1099,7 +1107,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
 
                 WriteFile(remoteHashBuildPath, contentHash, builderInput.Registry);
 
-                dependencyHashes = new string[((int)ContentCatalogProvider.DependencyHashIndex.Count)];
+                dependencyHashes = new string[(int)ContentCatalogProvider.DependencyHashIndex.Count];
                 dependencyHashes[(int)ContentCatalogProvider.DependencyHashIndex.Remote] = identifier + "RemoteHash";
                 dependencyHashes[(int)ContentCatalogProvider.DependencyHashIndex.Cache] = identifier + "CacheHash";
                 dependencyHashes[(int)ContentCatalogProvider.DependencyHashIndex.Local] = identifier + "LocalHash";
