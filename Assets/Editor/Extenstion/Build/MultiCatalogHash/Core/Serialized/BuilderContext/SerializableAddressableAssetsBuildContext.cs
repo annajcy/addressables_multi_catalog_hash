@@ -16,14 +16,19 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuilderContex
     public class SerializableAddressableAssetsBuildContext : ISerializable<AddressableAssetsBuildContext>
     {
         public string settingsAssetPath;
-        public ResourceManagerRuntimeData runtimeData;
         public List<SerializableContentCatalogDataEntry> locations = new List<SerializableContentCatalogDataEntry>();
         public List<Type> providerTypes = new List<Type>();
+
+        public SerializableAddressableAssetsBuildContext() {}
+
+        public SerializableAddressableAssetsBuildContext(AddressableAssetsBuildContext input)
+        {
+            FromOriginal(input);
+        }
 
         public void FromOriginal(AddressableAssetsBuildContext input)
         {
             settingsAssetPath = (string)ReflectionHelper.GetFieldValue(input, "m_SettingsAssetPath");
-            runtimeData = input.runtimeData;
             input.locations.ForEach(data =>
             {
                 SerializableContentCatalogDataEntry scd = new SerializableContentCatalogDataEntry();
@@ -39,7 +44,6 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuilderContex
         {
             var context = new AddressableAssetsBuildContext
             {
-                runtimeData = runtimeData,
                 locations = new List<ContentCatalogDataEntry>(),
                 providerTypes = new HashSet<Type>()
             };

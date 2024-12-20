@@ -25,6 +25,7 @@ using UnityEngine.AddressableAssets.ResourceProviders;
 using UnityEngine.Build.Pipeline;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.ResourceManagement.Util;
+using UnityEngine.Serialization;
 using static UnityEditor.AddressableAssets.Build.ContentUpdateScript;
 using Object = System.Object;
 
@@ -46,6 +47,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
         public bool generateBundlesInFolders = true;
         public bool generateAlternativeRemoteIPCatalog = false;
         public AlternativeRemoteIP alternativeRemoteIP;
+        public string buildResultCacheSavePath = "Assets/AddressableAssetsData/BuildResult/build_cache.json";
         public AddressablesBuildResultCache buildResultCache;
 
         private string catalogBuildPath = string.Empty;
@@ -61,7 +63,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
 
         // Tests can set this flag to prevent player script compilation. This is the most expensive part of small builds
         // and isn't needed for most tests.
-        private static bool skipCompilePlayerScripts = false;
+        private static readonly bool skipCompilePlayerScripts = false;
 
         private Dictionary<string, List<ContentCatalogDataEntry>> GetPrimaryKeyToDependerLocations(List<ContentCatalogDataEntry> locations)
         {
@@ -234,12 +236,12 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
             }
         }
 
-        internal static string GetBuiltInBundleNamePrefix(AddressableAssetsBuildContext aaContext)
+        private static string GetBuiltInBundleNamePrefix(AddressableAssetsBuildContext aaContext)
         {
             return GetBuiltInBundleNamePrefix(aaContext.Settings);
         }
 
-        internal static string GetBuiltInBundleNamePrefix(AddressableAssetSettings settings)
+        private static string GetBuiltInBundleNamePrefix(AddressableAssetSettings settings)
         {
             string value = "";
             switch (settings.BuiltInBundleNaming)
@@ -262,13 +264,10 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
         {
             var bundleProviderId = schema.GetBundleCachedProviderId();
 
-            if (!createdProviderIds.Contains(bundleProviderId))
-            {
-                createdProviderIds.Add(bundleProviderId);
-                var bundleProviderType = schema.AssetBundleProviderType.Value;
-                var bundleProviderData = ObjectInitializationData.CreateSerializedInitializationData(bundleProviderType, bundleProviderId);
-                resourceProviderData.Add(bundleProviderData);
-            }
+            if (!createdProviderIds.Add(bundleProviderId)) return;
+            var bundleProviderType = schema.AssetBundleProviderType.Value;
+            var bundleProviderData = ObjectInitializationData.CreateSerializedInitializationData(bundleProviderType, bundleProviderId);
+            resourceProviderData.Add(bundleProviderData);
         }
 
         private static string GetMonoScriptBundleNamePrefix(AddressableAssetsBuildContext aaContext)
@@ -612,8 +611,6 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
                         linker.AddSerializedClass(resultValue.includedSerializeReferenceFQN);
                     }
                 }
-
-
             }
 
 
@@ -624,10 +621,8 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
 
             var catalogs = GetContentCatalogs(builderInput, aaContext);
 
-            buildResultCache.aaContext = aaContext;
-            buildResultCache.builderInput = builderInput;
-            buildResultCache.buildResult = addrResult;
-            buildResultCache.catalogs = catalogs;
+            buildResultCache = new AddressablesBuildResultCache(builderInput, aaContext, addrResult, catalogs);
+            buildResultCache.SaveToJson(buildResultCacheSavePath);
 
             catalogs.ForEach(catalogInfo =>
             {
@@ -925,8 +920,11 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
             }
             else
             {
-                WriteFile(catalogBuildPath, jsonText, builderInput.Registry);
-                WriteFile(catalogBuildPath.Replace(".json", ".hash"), catalogHash.ToString(), builderInput.Registry);
+                if (catalogBuildInfo.IsDefaultCatalog || catalogBuildInfo.registerToSettings)
+                {
+                    WriteFile(catalogBuildPath, jsonText, builderInput.Registry);
+                    WriteFile(catalogBuildPath.Replace(".json", ".hash"), catalogHash.ToString(), builderInput.Registry);
+                }
             }
 #else
             if (catalogBuildInfo.IsDefaultCatalog || catalogBuildInfo.registerToSettings)
@@ -1121,7 +1119,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
                     Data = catalogLoadOptions.Copy()
                 };
 
-                if (catalogBuildInfo.registerToSettings) locations.Add(remoteHashLoadLocation);
+                if (catalogBuildInfo.registerToSettings) locations?.Add(remoteHashLoadLocation);
 
 #if UNITY_SWITCH
                 var cacheLoadPath = remoteHashLoadPath; // ResourceLocationBase does not allow empty string id
@@ -1135,14 +1133,14 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
                 {
                     Data = catalogLoadOptions.Copy()
                 };
-                if (catalogBuildInfo.registerToSettings) locations.Add(cacheLoadLocation);
+                if (catalogBuildInfo.registerToSettings) locations?.Add(cacheLoadLocation);
 
                 var localCatalogLoadPath = "{UnityEngine.AddressableAssets.Addressables.RuntimePath}/" + $"{fileName.Split('.').First()}.hash";
                 var localLoadLocation = new ResourceLocationData(
                     new[] { dependencyHashes[(int)ContentCatalogProvider.DependencyHashIndex.Local] },
                     localCatalogLoadPath,
                     typeof(TextDataProvider), typeof(string));
-                if (catalogBuildInfo.registerToSettings) locations.Add(localLoadLocation);
+                if (catalogBuildInfo.registerToSettings) locations?.Add(localLoadLocation);
             }
 
             return dependencyHashes;

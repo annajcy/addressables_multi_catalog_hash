@@ -8,17 +8,24 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuilderResult
     [Serializable]
     public class SerializableBuilderResult : ISerializable<AddressablesPlayerBuildResult>
     {
-        public List<AddressablesPlayerBuildResult.BundleBuildResult> bundleBuildResults;
+        public List<SerializableAssetBundleResult> bundleBuildResults = new List<SerializableAssetBundleResult>();
+        public SerializableBuilderResult() {}
+        public SerializableBuilderResult(AddressablesPlayerBuildResult input) { FromOriginal(input); }
 
         public void FromOriginal(AddressablesPlayerBuildResult input)
         {
-            bundleBuildResults = input.AssetBundleBuildResults;
+            input.AssetBundleBuildResults.ForEach(results =>
+            {
+                SerializableAssetBundleResult abr = new SerializableAssetBundleResult();
+                abr.FromOriginal(results);
+                bundleBuildResults.Add(abr);
+            });
         }
 
         public AddressablesPlayerBuildResult ToOriginal()
         {
             var result = new AddressablesPlayerBuildResult();
-            bundleBuildResults.ForEach(data => result.AssetBundleBuildResults.Add(data));
+            bundleBuildResults.ForEach(data => result.AssetBundleBuildResults.Add(data.ToOriginal()));
             return result;
         }
     }

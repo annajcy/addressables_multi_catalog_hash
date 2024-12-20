@@ -20,6 +20,13 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuilderInput
         public bool isContentUpdateBuild;
         public SerializableFileRegistry registry = new SerializableFileRegistry();
 
+        public SerializableAddressablesDataBuilderInput() {}
+
+        public SerializableAddressablesDataBuilderInput(AddressablesDataBuilderInput input)
+        {
+            FromOriginal(input);
+        }
+
         public void FromOriginal(AddressablesDataBuilderInput input)
         {
             playerVersion = input.PlayerVersion;

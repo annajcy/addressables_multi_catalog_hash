@@ -10,9 +10,9 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuilderContex
     {
         public string internalId;
         public string provider;
-        public List<string> keys;
-        public List<string> dependencies;
         public string resourceType;
+        public List<string> keys = new List<string>();
+        public List<string> dependencies = new List<string>();
 
         public void FromOriginal(ContentCatalogDataEntry input)
         {

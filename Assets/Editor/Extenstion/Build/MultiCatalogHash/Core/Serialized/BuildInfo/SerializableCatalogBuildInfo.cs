@@ -17,7 +17,6 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuildInfo
         public List<SerializableContentCatalogDataEntry> locations = new List<SerializableContentCatalogDataEntry>();
         public List<string> includedBundles = new List<string>();
 
-
         public void FromOriginal(CatalogBuildInfo input)
         {
             identifier = input.identifier;

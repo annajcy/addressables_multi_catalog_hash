@@ -8,7 +8,14 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuildInfo
     [Serializable]
     public class SerializableBuildInfos : ISerializable<List<CatalogBuildInfo>>
     {
-        public List<SerializableCatalogBuildInfo> catalogs;
+        public List<SerializableCatalogBuildInfo> catalogs = new List<SerializableCatalogBuildInfo>();
+
+        public SerializableBuildInfos() {}
+
+        public SerializableBuildInfos(List<CatalogBuildInfo> input)
+        {
+            FromOriginal(input);
+        }
 
         public void FromOriginal(List<CatalogBuildInfo> input)
         {

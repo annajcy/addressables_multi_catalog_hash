@@ -7,7 +7,20 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.CoreEditor
     [CustomEditor(typeof(MultiCatalogHashBuild))]
     public class MultiCatalogHashBuildEditor : UnityEditor.Editor
     {
-        public AddressableAssetSettings addressableAssetSettings;
+        public string buildResultCacheLoadPath = "Assets/AddressableAssetsData/BuildResult/build_cache.json";
+        public string addressablesSettingPath = "Assets/AddressableAssetsData/AddressableAssetSettings.asset";
+
+        private AddressableAssetSettings addressableAssetSettings;
+        private AddressableAssetSettings AddressableAssetSettings
+        {
+            get
+            {
+                if (addressableAssetSettings == null && !string.IsNullOrEmpty(addressablesSettingPath))
+                    addressableAssetSettings = AssetDatabase.LoadAssetAtPath<AddressableAssetSettings>(addressablesSettingPath);
+                return addressableAssetSettings;
+            }
+        }
+
         // 用于引用目标 ScriptableObject
         private MultiCatalogHashBuild multiCatalogHashBuild;
 
@@ -22,19 +35,39 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.CoreEditor
 
             EditorGUILayout.Space();
 
+            // 绘制 buildResultCacheLoadPath 字段
+            EditorGUILayout.LabelField("Addressables Setting Path", EditorStyles.boldLabel);
+            addressablesSettingPath = EditorGUILayout.TextField(
+                "Setting Path",
+                addressablesSettingPath);
+
+            // 绘制 buildResultCacheLoadPath 字段
+            EditorGUILayout.LabelField("Build Result Cache Load Path", EditorStyles.boldLabel);
+            buildResultCacheLoadPath = EditorGUILayout.TextField(
+                "Load Path",
+                buildResultCacheLoadPath);
+
+            EditorGUILayout.Space();
+
+            if (GUILayout.Button("Restore Build Cache"))
+            {
+                multiCatalogHashBuild.buildResultCache ??= AddressablesBuildResultCache.LoadFromJson(buildResultCacheLoadPath);
+            }
+
             if (GUILayout.Button("Build Alternative Remote IP Catalog"))
             {
-                if (multiCatalogHashBuild.buildResultCache == null)
-                    Debug.Log("Build Result Cache is Null");
-                else
+                multiCatalogHashBuild.buildResultCache ??= AddressablesBuildResultCache.LoadFromJson(buildResultCacheLoadPath);
+
+                if (multiCatalogHashBuild.buildResultCache != null)
                 {
                     multiCatalogHashBuild.BuildAlternativeRemoteIPCatalog(
-                        multiCatalogHashBuild.buildResultCache.builderInput.ToOriginal(addressableAssetSettings),
+                        multiCatalogHashBuild.buildResultCache.builderInput.ToOriginal(AddressableAssetSettings),
                         multiCatalogHashBuild.buildResultCache.aaContext.ToOriginal(),
                         multiCatalogHashBuild.buildResultCache.buildResult.ToOriginal(),
-                        multiCatalogHashBuild.buildResultCache.catalogs);
+                        multiCatalogHashBuild.buildResultCache.buildInfos.ToOriginal());
                     Debug.Log("Build Alternative Remote IP Catalog Performed for MultiCatalogHashBuild.");
                 }
+                else Debug.LogError("Failed To Build Alternative Remote IP Catalog Performed for MultiCatalogHashBuild.");
             }
 
             if (GUI.changed)
