@@ -33,7 +33,7 @@ MonoBehaviour:
       target: StandaloneOSX
       pathSuffix: 
       runtimeSettingsFilename: settings.json
-      runtimeCatalogFilename: catalog.json
+      runtimeCatalogFilename: catalog.bin
       isBuildAndRelease: 0
       isContentUpdateBuild: 0
       registry:
