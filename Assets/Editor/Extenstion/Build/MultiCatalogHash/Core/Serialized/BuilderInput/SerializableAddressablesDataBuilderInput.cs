@@ -53,17 +53,12 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuilderInput
                 RuntimeCatalogFilename = runtimeCatalogFilename,
             };
 
-            // 反序列化字符串为枚举类型
-            if (Enum.TryParse(targetGroup, out BuildTargetGroup parsedTargetGroup))
-                ReflectionHelper.SetFieldValue(output, "TargetGroup", parsedTargetGroup);
-
-            if (Enum.TryParse(target, out BuildTarget parsedTarget))
-                ReflectionHelper.SetFieldValue(output, "Target", parsedTarget);
-
             // 设置 internal 字段值
             ReflectionHelper.SetFieldValue(output, "IsBuildAndRelease", isBuildAndRelease);
             ReflectionHelper.SetFieldValue(output, "IsContentUpdateBuild", isContentUpdateBuild);
-            ReflectionHelper.SetFieldValue(output, "Registry", registry.ToOriginal());
+
+            foreach (var registryFilePath in registry.filePaths)
+                output.Registry.AddFile(registryFilePath);
 
             return output;
         }

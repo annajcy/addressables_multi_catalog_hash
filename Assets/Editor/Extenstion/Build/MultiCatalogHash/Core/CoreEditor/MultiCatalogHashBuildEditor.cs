@@ -35,7 +35,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.CoreEditor
 
             EditorGUILayout.Space();
 
-            // 绘制 buildResultCacheLoadPath 字段
+            // 绘制 addressablesSettingPath 字段
             EditorGUILayout.LabelField("Addressables Setting Path", EditorStyles.boldLabel);
             addressablesSettingPath = EditorGUILayout.TextField(
                 "Setting Path",

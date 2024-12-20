@@ -45,7 +45,8 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuilderContex
             var context = new AddressableAssetsBuildContext
             {
                 locations = new List<ContentCatalogDataEntry>(),
-                providerTypes = new HashSet<Type>()
+                providerTypes = new HashSet<Type>(),
+                runtimeData = new ResourceManagerRuntimeData()
             };
 
             providerTypes.ForEach(type => { context.providerTypes.Add(type); });

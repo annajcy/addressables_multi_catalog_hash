@@ -5,7 +5,7 @@
     "target": "StandaloneOSX",
     "pathSuffix": "",
     "runtimeSettingsFilename": "settings.json",
-    "runtimeCatalogFilename": "catalog.json",
+    "runtimeCatalogFilename": "catalog.bin",
     "isBuildAndRelease": false,
     "isContentUpdateBuild": false,
     "registry": {

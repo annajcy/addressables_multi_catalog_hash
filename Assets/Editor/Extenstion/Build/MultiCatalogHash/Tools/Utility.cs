@@ -5,9 +5,6 @@ using UnityEditor;
 
 namespace Editor.Extenstion.Build.MultiCatalogHash.Tools
 {
-    /// <summary>
-    /// The BuildTask used to create location lists for Addressable assets.
-    /// </summary>
     public static class Utility
     {
         /// <summary>
