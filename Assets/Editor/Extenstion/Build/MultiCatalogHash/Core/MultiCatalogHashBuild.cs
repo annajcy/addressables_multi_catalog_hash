@@ -387,13 +387,135 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
 			return catalogs;
 		}
 
+        public static void BuildAlternativeRemoteIPCatalogCommandLine()
+        {
+            string buildResultCacheLoadPath = Utility.GetCommandLineArg("-buildResultCacheLoadPath");
+            string alternativeRemoteIPLoadUrl = Utility.GetCommandLineArg("-alternativeRemoteIPLoadUrl");
+            BuildAlternativeRemoteIPCatalogCommandLine(buildResultCacheLoadPath, alternativeRemoteIPLoadUrl);
+        }
+
+        public static void BuildAlternativeRemoteIPCatalogCommandLine(string buildResultCacheLoadPath, string alternativeRemoteIPLoadUrl)
+        {
+            var buildResultCache = AddressablesBuildResultCache.LoadFromJson(buildResultCacheLoadPath);
+
+            if (buildResultCache != null)
+            {
+                BuildAlternativeRemoteIPCatalogStatic(
+                    buildResultCache.builderInput.ToOriginal(buildResultCache.aaContext.ToOriginal().Settings),
+                    buildResultCache.aaContext.ToOriginal(),
+                    buildResultCache.buildResult.ToOriginal(),
+                    buildResultCache.buildInfos.ToOriginal(),
+                    buildResultCache.resourceProviderDataList.ToOriginal(),
+                    alternativeRemoteIPLoadUrl);
+                Debug.Log("Build Alternative Remote IP Catalog Performed for MultiCatalogHashBuild.");
+            }
+            else Debug.LogError("Failed To Build Alternative Remote IP Catalog Performed for MultiCatalogHashBuild.");
+        }
+
+        private static void BuildAlternativeRemoteIPCatalogStatic
+            (AddressablesDataBuilderInput builderInput,
+                AddressableAssetsBuildContext aaContext,
+                AddressablesPlayerBuildResult addrResult,
+                List<CatalogBuildInfo> catalogs,
+                List<ObjectInitializationData> resourceProviderData,
+                string url = null)
+        {
+            var remoteIps = AlternativeRemoteIP.LoadRemoteIpsStatic(url);
+            if (remoteIps != null && remoteIps.Count != 0)
+            {
+                var remoteCatalogs = catalogs;
+                remoteCatalogs.RemoveAt(0);
+                remoteCatalogs.ForEach(catalogInfo =>
+                {
+                    var buildPath = catalogInfo.buildPath;
+                    var loadPath = catalogInfo.loadPath;
+
+                    foreach (var ip in remoteIps)
+                    {
+                        foreach (var catalogDataEntry in catalogInfo.locations)
+                        {
+                            if (catalogDataEntry.Dependencies.Count != 0) continue;
+                            catalogDataEntry.InternalId = Utility.ReplaceIPAddress(
+                                catalogDataEntry.InternalId,
+                                ip.Address);
+                        }
+
+                        catalogInfo.loadPath = Utility.ReplaceIPAddress(loadPath, ip.Address);
+                        catalogInfo.buildPath = buildPath + "_" + ip.identifier;
+
+                        var contentCatalog = new ContentCatalogData(catalogInfo.identifier);
+
+                        # region Generate Caxtalog Files
+
+
+                        if (addrResult != null)
+                        {
+                            List<Object> hashingObjects = new List<Object>();
+                            foreach (var assetBundleBuildResult in addrResult.AssetBundleBuildResults)
+                            {
+                                if (catalogInfo.includedBundles.Exists(bundleName => string.Equals(bundleName,
+                                    Utility.GetFileName(assetBundleBuildResult.FilePath, builderInput.Target))))
+                                    hashingObjects.Add(assetBundleBuildResult.Hash);
+                            }
+                            string buildResultHash = HashingMethods.Calculate(hashingObjects.ToArray()).ToString();
+                            contentCatalog.BuildResultHash = buildResultHash;
+                        }
+
+                        //set data
+                        contentCatalog.SetData(catalogInfo.locations.OrderBy(entry => entry.InternalId).ToList());
+
+                        //set providers
+                        contentCatalog.ResourceProviderData.AddRange(resourceProviderData);
+                        foreach (var t in aaContext.providerTypes)
+                            contentCatalog.ResourceProviderData.Add(ObjectInitializationData
+                                .CreateSerializedInitializationData(t));
+                        contentCatalog.InstanceProviderData =
+                            ObjectInitializationData.CreateSerializedInitializationData(typeof(InstanceProvider));
+                        contentCatalog.SceneProviderData =
+                            ObjectInitializationData.CreateSerializedInitializationData(typeof(SceneProvider));
+
+#if ENABLE_JSON_CATALOG
+
+                        //save json catalog
+                        string jsonText = JsonUtility.ToJson(contentCatalog);
+
+                        if (aaContext.Settings.BuildRemoteCatalog || ProjectConfigData.GenerateBuildLayout)
+                        {
+                            string contentHash = HashingMethods.Calculate(jsonText).ToString();
+                            contentCatalog.LocalHash = contentHash;
+                        }
+
+                        CreateCatalogFilesStatic(jsonText, catalogInfo, builderInput, aaContext);
+#else
+                        //save binary catalog
+                        byte[] bytes = contentCatalog.SerializeToByteArray();
+
+                        if (aaContext.Settings.BuildRemoteCatalog || ProjectConfigData.GenerateBuildLayout)
+                        {
+                            string contentHash = HashingMethods.Calculate(bytes).ToString();
+                            contentCatalog.LocalHash = contentHash;
+                        }
+
+                        CreateCatalogFilesStatic(bytes, catalogInfo, builderInput, aaContext);
+#endif
+                        #endregion
+                    }
+
+                    catalogInfo.buildPath = buildPath;
+                    catalogInfo.loadPath = loadPath;
+                });
+            }
+        }
+
         public void BuildAlternativeRemoteIPCatalog
             (AddressablesDataBuilderInput builderInput,
                 AddressableAssetsBuildContext aaContext,
                 AddressablesPlayerBuildResult addrResult,
-                List<CatalogBuildInfo> catalogs)
+                List<CatalogBuildInfo> catalogs,
+                List<ObjectInitializationData> resourceProviderData,
+                string url = null)
         {
-            if (alternativeRemoteIP.LoadRemoteIps() && alternativeRemoteIP.remoteIps.Count != 0)
+            if (alternativeRemoteIP.LoadRemoteIps(url) && alternativeRemoteIP.remoteIps.Count != 0)
             {
                 var remoteCatalogs = catalogs;
                 remoteCatalogs.RemoveAt(0);
@@ -497,6 +619,8 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
                 });
             }
         }
+
+
 
         /// <summary>
         /// The method that does the actual building after all the groups have been processed.
@@ -621,7 +745,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
 
             var catalogs = GetContentCatalogs(builderInput, aaContext);
 
-            buildResultCache = new AddressablesBuildResultCache(builderInput, aaContext, addrResult, catalogs);
+            buildResultCache = new AddressablesBuildResultCache(builderInput, aaContext, addrResult, catalogs, resourceProviderData);
             buildResultCache.SaveToJson(buildResultCacheSavePath);
 
             catalogs.ForEach(catalogInfo =>
@@ -710,7 +834,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
             #region Build Catalogs With Alternative IP Address
 
             if (generateAlternativeRemoteIPCatalog)
-                BuildAlternativeRemoteIPCatalog(builderInput, aaContext, addrResult, catalogs);
+                BuildAlternativeRemoteIPCatalog(builderInput, aaContext, addrResult, catalogs, resourceProviderData);
 
             #endregion
 
@@ -869,6 +993,106 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
                 addressableEntryToCachedStateMap[cachedInfo.asset.guid.ToString()] = cachedInfo;
 
             return addressableEntryToCachedStateMap;
+        }
+
+        private static bool CreateCatalogFilesStatic(
+#if ENABLE_JSON_CATALOG
+            string jsonText,
+#else
+            byte[] data,
+#endif
+             CatalogBuildInfo catalogBuildInfo, AddressablesDataBuilderInput builderInput, AddressableAssetsBuildContext aaContext)
+        {
+            string identifier = catalogBuildInfo.identifier;
+            string fileName = catalogBuildInfo.fileName;
+            if (
+#if ENABLE_JSON_CATALOG
+                string.IsNullOrEmpty(jsonText)
+#else
+                data == null
+#endif
+                || builderInput == null || aaContext == null || identifier == null || fileName == null)
+            {
+                Addressables.LogError("Unable to create content catalog (Null arguments).");
+                return false;
+            }
+
+            // Path needs to be resolved at runtime.
+            string localLoadPath = "{UnityEngine.AddressableAssets.Addressables.RuntimePath}/" +
+                                   Utility.AppendFileNameExtension(fileName);
+
+#if ENABLE_JSON_CATALOG
+            var catalogHash = HashingMethods.Calculate(jsonText);
+#else
+            var catalogHash = HashingMethods.Calculate(data);
+#endif
+
+            var catalogBuildPath = Path.Combine(Addressables.BuildPath,
+                Utility.AppendFileNameExtension(fileName));
+
+#if ENABLE_JSON_CATALOG
+            if (aaContext.Settings.BundleLocalCatalog)
+            {
+                localLoadPath = localLoadPath.Replace(".json", ".bundle");
+                catalogBuildPath = catalogBuildPath.Replace(".json", ".bundle");
+                var returnCode = CreateCatalogBundle(catalogBuildPath, jsonText, builderInput);
+                if (returnCode != ReturnCode.Success || !File.Exists(catalogBuildPath))
+                {
+                    Addressables.LogError($"An error occured during the creation of the content catalog bundle (return code {returnCode}).");
+                    return false;
+                }
+            }
+            else
+            {
+                if (catalogBuildInfo.IsDefaultCatalog || catalogBuildInfo.registerToSettings)
+                {
+                    WriteFile(catalogBuildPath, jsonText, builderInput.Registry);
+                    WriteFile(catalogBuildPath.Replace(".json", ".hash"), catalogHash.ToString(), builderInput.Registry);
+                }
+            }
+#else
+            if (catalogBuildInfo.IsDefaultCatalog || catalogBuildInfo.registerToSettings)
+            {
+                WriteFile(catalogBuildPath, data, builderInput.Registry);
+                WriteFile(catalogBuildPath.Replace(".bin", ".hash"), catalogHash.ToString(), builderInput.Registry);
+            }
+
+#endif
+            string[] dependencyHashes = null;
+
+            if (aaContext.Settings.BuildRemoteCatalog)
+            {
+                if (!catalogBuildInfo.IsDefaultCatalog)
+                {
+                    dependencyHashes = CreateRemoteCatalog(
+#if ENABLE_JSON_CATALOG
+                    jsonText,
+#else
+                        data,
+#endif
+                        aaContext.runtimeData.CatalogLocations,
+                        aaContext.Settings,
+                        builderInput,
+                        new ProviderLoadRequestOptions
+                            {IgnoreFailures = true},
+                        catalogHash.ToString(),
+                        catalogBuildInfo);
+                }
+            }
+
+            ResourceLocationData targetCatalog = new ResourceLocationData(
+                new[] {identifier},
+                localLoadPath,
+                typeof(ContentCatalogProvider),
+                typeof(ContentCatalogData),
+                dependencyHashes)
+            {
+                //We need to set the data here because this location data gets used later if we decide to load the remote/cached catalog instead.  See DetermineIdToLoad(...)
+                Data = new ProviderLoadRequestOptions { IgnoreFailures = true }
+            };
+
+            if (catalogBuildInfo.registerToSettings) aaContext.runtimeData.CatalogLocations.Add(targetCatalog);
+            return true;
         }
 
         private bool CreateCatalogFiles(

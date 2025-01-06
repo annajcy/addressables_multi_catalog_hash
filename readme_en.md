@@ -245,3 +245,35 @@ If these three messages appear in the Console panel, it means the build was succ
 In the `ServerData` folder, you will find newly generated catalog files and hashes. These are the catalogs with the replaced IPs.  
 ![](media/17349224086192.png)
 
+### Command Line Usage
+
+Unity's `-executeMethod` parameter is used to specify the full path of the static method. Below is the format for the command line:
+
+#### Windows Command Line
+```bash
+<Path_To_Unity_Editor>/Unity.exe -projectPath <Path_To_Project> -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadPath "<Cache_Load_Path>" -alternativeRemoteIPLoadUrl "<Remote_IP_Url>"
+```
+#### macOS/Linux Command Line
+```bash
+<Path_To_Unity_Editor>/Unity -projectPath <Path_To_Project> -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadPath "<Cache_Load_Path>" -alternativeRemoteIPLoadUrl "<Remote_IP_Url>"
+```
+- <Path_To_Unity_Editor>: The path to the Unity Editor executable. Examples:
+  - Windows: C:\Program Files\Unity\Hub\Editor\2023.1.0\Editor\Unity.exe
+  - macOS: /Applications/Unity/Hub/Editor/2023.1.0/Unity
+- <Path_To_Project>: The root directory path of your Unity project.
+- <Cache_Load_Path> and <Remote_IP_Url>: Replace with the actual values you need to pass as arguments.
+
+#### Complete Example
+
+Example Command
+
+Assume buildResultCacheLoadPath is C:\CachePath, alternativeRemoteIPLoadUrl is http://example.com, your Unity project path is D:\MyUnityProject, and Unity Editor is installed in the default directory:
+```bash
+"C:\Program Files\Unity\Hub\Editor\2023.1.0\Editor\Unity.exe" -projectPath "D:\MyUnityProject" -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadPath "C:\CachePath" -alternativeRemoteIPLoadUrl "http://example.com"
+```
+
+
+
+
+
+

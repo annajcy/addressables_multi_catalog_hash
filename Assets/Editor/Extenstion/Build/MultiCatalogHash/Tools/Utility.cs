@@ -7,6 +7,18 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Tools
 {
     public static class Utility
     {
+        public static string GetCommandLineArg(string name)
+        {
+            string[] args = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == name && i + 1 < args.Length)
+                    return args[i + 1];
+
+            }
+            return null;
+        }
+
         /// <summary>
         /// Moves a file to the specified folder, creating the target folder if it doesn't exist.
         /// If a file with the same name exists in the target folder, it will be overwritten.

@@ -64,7 +64,8 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core.CoreEditor
                         multiCatalogHashBuild.buildResultCache.builderInput.ToOriginal(AddressableAssetSettings),
                         multiCatalogHashBuild.buildResultCache.aaContext.ToOriginal(),
                         multiCatalogHashBuild.buildResultCache.buildResult.ToOriginal(),
-                        multiCatalogHashBuild.buildResultCache.buildInfos.ToOriginal());
+                        multiCatalogHashBuild.buildResultCache.buildInfos.ToOriginal(),
+                        multiCatalogHashBuild.buildResultCache.resourceProviderDataList.ToOriginal());
                     Debug.Log("Build Alternative Remote IP Catalog Performed for MultiCatalogHashBuild.");
                 }
                 else Debug.LogError("Failed To Build Alternative Remote IP Catalog Performed for MultiCatalogHashBuild.");

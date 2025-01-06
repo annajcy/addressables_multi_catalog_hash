@@ -5,10 +5,12 @@ using Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuilderContext;
 using Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuilderInput;
 using Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuilderResult;
 using Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuildInfo;
+using Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.ResourceProviderData;
 using Unity.Plastic.Newtonsoft.Json;
 using UnityEditor.AddressableAssets.Build;
 using UnityEditor.AddressableAssets.Build.DataBuilders;
 using UnityEngine;
+using UnityEngine.ResourceManagement.Util;
 
 namespace Editor.Extenstion.Build.MultiCatalogHash.Core
 {
@@ -19,6 +21,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
         public SerializableAddressableAssetsBuildContext aaContext;
         public SerializableBuilderResult buildResult;
         public SerializableBuildInfos buildInfos;
+        public SerializableResourceProviderDataList resourceProviderDataList;
 
         public AddressablesBuildResultCache() {}
 
@@ -26,12 +29,14 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
             AddressablesDataBuilderInput builderInput,
             AddressableAssetsBuildContext aaContext,
             AddressablesPlayerBuildResult buildResult,
-            List<CatalogBuildInfo> buildInfos)
+            List<CatalogBuildInfo> buildInfos,
+            List<ObjectInitializationData> resourceProviderDataList)
         {
             this.builderInput = new SerializableAddressablesDataBuilderInput(builderInput);
             this.aaContext = new SerializableAddressableAssetsBuildContext(aaContext);
             this.buildResult = new SerializableBuilderResult(buildResult);
             this.buildInfos = new SerializableBuildInfos(buildInfos);
+            this.resourceProviderDataList = new SerializableResourceProviderDataList(resourceProviderDataList);
         }
 
         /// <summary>

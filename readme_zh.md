@@ -254,3 +254,41 @@ namespace Script
 我们观察到在ServerData文件夹中生成了新的catalog文件和hash，这是替换过ip后的catalog
 ![](media/17349224086192.png)
 
+## 命令行模式
+
+要在命令行中调用 BuildAlternativeRemoteIPCatalogCommandLine 函数，需要按照 Unity 的命令行工具使用规范来执行。以下是具体的步骤：
+
+
+### 命令行调用方式
+
+Unity 的 -executeMethod 参数用于指定静态方法的完整路径。以下是命令行的调用格式：
+
+Windows 命令行
+```bash
+<Path_To_Unity_Editor>/Unity.exe -projectPath <Path_To_Project> -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadPath "<Cache_Load_Path>" -alternativeRemoteIPLoadUrl "<Remote_IP_Url>"
+```
+
+macOS/Linux 命令行
+```bash
+<Path_To_Unity_Editor>/Unity -projectPath <Path_To_Project> -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadPath "<Cache_Load_Path>" -alternativeRemoteIPLoadUrl "<Remote_IP_Url>"
+```
+
+- <Path_To_Unity_Editor>: Unity Editor 的可执行文件路径。例如：
+- Windows: C:\Program Files\Unity\Hub\Editor\2023.1.0\Editor\Unity.exe
+- macOS: /Applications/Unity/Hub/Editor/2023.1.0/Unity
+- <Path_To_Project>: Unity 项目的根目录路径。
+- <Cache_Load_Path> 和 <Remote_IP_Url>: 替换为实际需要传递的参数值。
+
+
+### 完整示例
+
+示例调用
+
+假设你的 buildResultCacheLoadPath 是 C:\CachePath，alternativeRemoteIPLoadUrl 是 http://example.com, Unity 项目路径是 D:\MyUnityProject，Unity Editor 安装在默认路径：
+```bash
+"C:\Program Files\Unity\Hub\Editor\2023.1.0\Editor\Unity.exe" -projectPath "D:\MyUnityProject" -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadPath "C:\CachePath" -alternativeRemoteIPLoadUrl "http://example.com"
+```
+
+
+
+
