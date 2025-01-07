@@ -248,10 +248,10 @@ We observe that new catalog files and hashes have been generated in the `ServerD
 
 # Command Line Mode
 
-- <Unity Executable Path> 
-- <Project_Path> 
-- <Build Result Cache Load Url> 
-- <Alternative RemoteIP Load Url> 
+- `<Unity Executable Path>` 
+- `<Project_Path> `
+- `<Build Result Cache Load Url> `
+- `<Alternative RemoteIP Load Url> `
 
 ```bash
 <Unity Executable Path> -nographics -quit accept-apiupdate -batchmode -projectPath <Project Path> -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.MultiCatalogHashBuild.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadUrl <Build Result Cache Load Url> -alternativeRemoteIPLoadUrl <Alternative RemoteIP Load Url>

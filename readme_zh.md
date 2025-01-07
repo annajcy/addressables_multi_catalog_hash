@@ -251,10 +251,10 @@ namespace Script
 
 # 命令行模式
 
-- <Unity Executable Path> Unity 的可执行文件路径
-- <Project_Path> 项目路径
-- <Build Result Cache Load Url> 构建缓存的URL
-- <Alternative RemoteIP Load Url> 多ip配置文件的URL
+- `<Unity Executable Path>` Unity 的可执行文件路径
+- `<Project Path>` 项目路径
+- `<Build Result Cache Load Url>` 构建缓存的URL
+- `<Alternative RemoteIP Load Url>` 多ip配置文件的URL
 
 ```bash
 <Unity Executable Path> -nographics -quit accept-apiupdate -batchmode -projectPath <Project Path> -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.MultiCatalogHashBuild.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadUrl <Build Result Cache Load Url> -alternativeRemoteIPLoadUrl <Alternative RemoteIP Load Url>
