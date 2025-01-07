@@ -248,10 +248,15 @@ We observe that new catalog files and hashes have been generated in the `ServerD
 
 # Command Line Mode
 
+- <Unity Executable Path> 
+- <Project_Path> 
+- <Build Result Cache Load Url> 
+- <Alternative RemoteIP Load Url> 
+
 ```bash
-<Unity Executable Path> -quit accept-apiupdate -batchmode -projectPath <Project_Path> -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.MultiCatalogHashBuild.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadUrl <Build Result Cache Load Url> -alternativeRemoteIPLoadUrl <Alternative_RemoteIP_Load_Url>
+<Unity Executable Path> -nographics -quit accept-apiupdate -batchmode -projectPath <Project Path> -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.MultiCatalogHashBuild.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadUrl <Build Result Cache Load Url> -alternativeRemoteIPLoadUrl <Alternative RemoteIP Load Url>
 ```
 
 ```bash
-/Applications/Unity/Unity.app/Contents/MacOS/Unity -quit accept-apiupdate -batchmode -projectPath "/Users/jinceyang/RiderProjects/addressables_test" -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.MultiCatalogHashBuild.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadUrl "http://127.0.0.1:8085/build_cache.json" -alternativeRemoteIPLoadUrl "http://127.0.0.1:8085/remote_ips.json"
+/Applications/Unity/Unity.app/Contents/MacOS/Unity -nographics -quit accept-apiupdate -batchmode -projectPath "/Users/jinceyang/RiderProjects/addressables_test" -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.MultiCatalogHashBuild.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadUrl "http://127.0.0.1:8085/build_cache.json" -alternativeRemoteIPLoadUrl "http://127.0.0.1:8085/remote_ips.json"
 ```
