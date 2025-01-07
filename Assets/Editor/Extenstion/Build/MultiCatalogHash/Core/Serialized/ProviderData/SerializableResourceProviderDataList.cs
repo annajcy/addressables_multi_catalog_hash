@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.Interface;
 using UnityEngine.ResourceManagement.Util;
 
-namespace Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.ResourceProviderData
+namespace Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.ProviderData
 {
     [Serializable]
     public class SerializableResourceProviderDataList : ISerializable<List<ObjectInitializationData>>
     {
         public List<ObjectInitializationData> resourceProviderData = new List<ObjectInitializationData>();
-
         public SerializableResourceProviderDataList() {}
 
         public SerializableResourceProviderDataList(List<ObjectInitializationData> resourceProviderData)

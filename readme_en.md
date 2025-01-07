@@ -1,110 +1,117 @@
 # Addressables Multi Catalog Hash
 
-This project is based on [Original Project 1](https://github.com/juniordiscart/com.unity.addressables) and [Original Project 2](https://github.com/Heeger0/com.unity.addressables-MultiCatalog-MultiHash?tab=readme-ov-file). For project background, please refer to the original repositories.
+This project is based on [Original Project 1](https://github.com/juniordiscart/com.unity.addressables) and [Original Project 2](https://github.com/Heeger0/com.unity.addressables-MultiCatalog-MultiHash?tab=readme-ov-file). The project background can be referred to in the repositories of the original projects.
 
 The differences between this project and [Original Project 1](https://github.com/juniordiscart/com.unity.addressables) are:
-- It supports generating Multi-Catalogs along with Multi-Hashes. Since each catalog corresponds to an individual hash file instead of all catalogs sharing a single hash file, when resources in a specific catalog's associated group are modified, only that group will be repacked. This avoids repacking all resources, greatly improving efficiency in packaging when using Unity Addressables for hot update technology.
+- It can generate Multi-Catalogs along with Multi-Hashes during the build process. Since each catalog corresponds to a separate hash file instead of all catalogs being identified by a single hash file, when resources in a group corresponding to an individual catalog file are modified, only the group containing the modified resources will be repackaged. This significantly improves the build efficiency when using Unity Addressables for hot updates.
 
 The differences between this project and [Original Project 2](https://github.com/Heeger0/com.unity.addressables-MultiCatalog-MultiHash?tab=readme-ov-file) are:
-- The core script has been separated from the Unity Addressables package and is released as a `.unitypackage`, avoiding conflicts with the official Addressables package.
+- This project separates the main functional scripts from the Unity Addressables package and releases them in the form of a `.unitypackage`, which does not conflict with the official Addressables package.
 - Added support for `.bin` format catalogs.
-- Added functionality for **generating multi-IP catalogs**, including:
-  - IP configuration file generation and loading (supports remote loading).
-  - Persistent build information.
-  - Decoupling catalog generation from the build process.
+- Added the functionality to **generate multi-IP catalogs**.
+  - IP configuration file generation and loading (can be loaded remotely).
+  - Build information can be persisted.
+  - The generation of multi-IP catalogs is decoupled from the build process.
 
 ![](media/17339022463153.jpg)![](media/17339022486411.jpg)
 ![](media/17339022514447.jpg)
 
-# Usage Instructions
+# Usage
 
 ### Environment Configuration
 
-#### Demonstration Environment
+#### Demo Environment
 - Unity: 6000.0.23f1
 - Addressables: 2.3.1
 
 #### Download the Package
-- Visit the [release](https://github.com/annajcy/addressables_multi_catalog_hash/releases/tag/addressables_2.3.1) page of this repository and download the `.unitypackage` file.  
-  ![](media/17339041915256.png)
-- After downloading, import Addressables 2.3.1.  
+- Visit the [release](https://github.com/annajcy/addressables_multi_catalog_hash/releases/tag/addressables_2.3.1) page of this repository and download the `.unitypackage` file. ![](media/17339041915256.png)
+- After downloading, import Addressables 2.3.1.
   ![](media/17339044900280.png)
-- Open the downloaded `addressables_multi_catalog_hash.unitypackage` file after importing successfully.  
+
+- After successful import, open the downloaded `addressables_multi_catalog_hash.unitypackage`.
   ![](media/17339046575852.png)
 
-- Go to Window -> Asset Management -> Addressables -> Groups -> Create Addressables Settings.  
-  ![](media/17339047006400.png)  
+- Click on Window -> Asset Management -> Addressables -> Groups -> Create Addressables Settings.
+  ![](media/17339047006400.png)
   ![](media/17339048136250.png)
 
-- In the Project window, navigate to `Assets/AddressableAssetsData`, and click on `AddressableAssetSettings`. Check **Build Remote Catalog** and **Only update catalogs manually**.  
-  ![](media/17339049975886.png)
+- In the Project window, navigate to `Assets/AddressableAssetsData`, and click on `AddressableAssetSettings`.
+  Check `Build Remote Catalog` and `Only update catalogs manually`. ![](media/17339049975886.png)
 
-- Open `Assets/AddressableAssetsData/DataBuilders`, and click Create -> Addressables -> Content Builders -> Multi Catalog Hash Build Script.  
+- Open `Assets/AddressableAssetsData/DataBuilders`, click on Create -> Addressables -> Content Builders -> Multi Catalog Hash Build Script.
   ![](media/17339050997245.png)
 
-- Return to AddressableAssetsData, and select **+** under Build and Play Mode Scripts.  
+- Return to `AddressableAssetsData`, and in `Build and Play Mode Scripts`, select +.
   ![](media/17339053149950.png)
 
-- Select the newly added `MultiCatalogHashBuild.asset`.  
+- Select the newly added `MultiCatalogHashBuild.asset`.
   ![](media/17339053791912.png)
+- When the `Multi Catalog Hash Build Script` appears in the Addressables Groups window, the environment configuration is successful. ![](media/17339054736277.png)
 
-- When the Multi Catalog Hash Build Script appears in the Addressable Groups window, the environment is set up successfully.  
-  ![](media/17339054736277.png)
-
-- Additionally, for testing, set Play Mode Script to **Use Existing Build**.  
+- Additionally, for testing purposes, you need to set the `PlayModeScript` to `Use Existing Build`.
   ![](media/17339061198978.png)
 
-- Set the remote file server address in Addressables Profiles.  
+- And set the address of your remote file server in the Addressables Profiles.
   ![](media/17339062453419.png)
 
-- *(Optional)* If you don’t have a remote file server, you can set up a simple local file server. Refer to [this project](https://github.com/annajcy/hfs).
+- (Optional) If you don't have a remote file server, you can set up a simple file server locally. You can refer to [this project](https://github.com/annajcy/hfs).
 
-### Example Usage
-Here is a simple example to demonstrate the usage of this project and explain relevant terminology.  
+### Example
+
+Here, we provide a simple example to illustrate the usage of this project and explain the necessary terminology.
 ![](media/17339032322073.png)
 
-This is a simple Addressable group setup, with three groups for remote resources and one for local resources. If packaged using the default method, one catalog file and four AssetBundle packages will be generated. The catalog file contains information about all four AssetBundle packages.
+This is a simple grouping of Addressables Groups, where 3 groups are remote resources and 1 group is local resources. If you choose the default build method, it will generate 1 catalog file and 4 AssetBundle packages. This catalog file contains all the information for these 4 AssetBundle packages.
 
-#### **Suppose we have the following requirements**
-- Split the single catalog file into three separate catalog files.
-- One catalog should record local resources only, excluding remote resources.
-- Two catalogs should record remote resources:
-  - Catalog **DLC1** records resources from the **Remote Asset** group.
-  - Catalog **DLC2** records resources from **Remote Asset1** and **Remote Asset2** groups.
+#### **Assuming we have the following requirements:**
+- We want to split this single catalog file into 3 catalog files.
+- One catalog records local resources and does not record remote resources.
+- The remaining 2 catalogs record remote resources.
+  - Catalog DLC1 records the resources of the Remote Asset group.
+  - Catalog DLC2 records the resources of Remote Asset1 and Remote Asset2.
 
 #### External Catalog
-An **External Catalog** in this project is a ScriptableObject that defines which Addressables Groups (or AssetBundle packages) are included in a remote catalog file and specifies the catalog identifier.
+The External Catalog is an important concept in this project. It is a Scriptable Object that defines the Addressables Groups (AssetBundle packages) included in the remote catalog file and the generated catalog identifier.
 
-#### Creating an External Catalog
-Create two External Catalogs named **DLC1** and **DLC2** via Create -> Addressables -> External Catalog and place them in the DLC folder.  
-![](media/17339068978419.png)  
+#### Creating External Catalogs
+We create two External Catalogs: DLC1 and DLC2, and place them in the DLC folder by clicking on Create -> Addressables -> External Catalog.
+![](media/17339068978419.png)
+
 ![](media/17339069130072.png)
 
-Each External Catalog will generate a catalog file (and its hash) during the build. Next, specify which Addressables Groups each catalog should include.
+At this point, each External Catalog will generate a catalog file (and its hash) during the build process. We then need to specify which Addressables Groups should be included in each catalog.
 
-#### Assign Addressables Groups to External Catalogs
-Set up the External Catalogs based on the requirements.  
-![](media/17339070854336.png)  
+#### Specifying Addressables Groups in External Catalogs
+According to the requirements, we configure the External Catalogs as follows:
+![](media/17339070854336.png)
+
 ![](media/17339071029141.png)
 
-#### Link External Catalogs to the Build Script
-The build script will read the associated External Catalogs, handle dependencies automatically, and generate separate catalog files. Resources not assigned to any External Catalog will be bundled into a default package. If the default package contains remote resources, you can choose to generate a remote catalog for it by checking **Build Default Catalog In Remote** in `MultiCatalogHashBuild.asset`.  
+#### Associating External Catalogs with the Build Script
+
+The build script in this project reads the associated External Catalogs, automatically handles the dependencies of the AssetBundle packages in the External Catalogs, and generates a separate catalog file. Other resources not in the External Catalogs will be packaged into a default bundle (if the default bundle contains remote resources, you can also generate a remote catalog by checking `Build Default Catalog In Remote` in `MultiCatalogHashBuild.asset`).
+
 ![](media/17339075623373.png)
 
-#### Execute the Build
-With all parameters configured, select **Multi Catalog Hash Build Script** under New Build in the Addressables Group window and start the build.  
-![](media/17339076498127.png)  
+#### Executing the Build
+At this point, we have configured the relevant parameters according to the requirements. In the Addressables Groups, select `Multi Catalog Hash Build Script` under `New Build` to start the build.
+![](media/17339076498127.png)
 ![](media/17339077550862.png)
 
-#### Review Build Results
-In the ServerData directory, you will find DLC1 and DLC2 folders containing catalog files, their hashes, and the associated AssetBundle packages. Additionally, the remote catalog and hash for the default package are generated.  
+#### Observing the Build Results
+In the `ServerData` folder, we have built the DLC1 and DLC2 directories, which contain the catalog files, catalog hashes, and the dependent AssetBundle packages.
+
+Additionally, there is the remote catalog file for the default bundle and its hash.
+
 ![](media/17339078966220.png)
 
-The local build directory contains the default package, its catalog, and hash.  
+In the local build directory, the default bundle, its catalog, and its hash are generated.
+
 ![](media/17339080211394.png)
 
 #### Loading
-Copy the DLC1 and DLC2 folders to the remote server for remote loading.  
+Copy the DLC1 and DLC2 folders directly to the remote server, and they can be loaded remotely.
 ![](media/17339081856003.png)
 
 Run the loading script:
@@ -186,94 +193,65 @@ namespace Script
 }
 ```
 
+You will notice that the 5 cubes have been successfully loaded.
+![](media/17339084282824.png)
+
 ### Another Example
 
-If we have the following requirement:  
-My game assets may be deployed on multiple resource servers, but I want to generate catalog files for these servers separately without rebuilding.
+Suppose we have the following additional requirement:
+My game resources may be deployed on multiple resource servers, but I want to generate separate catalog files for these servers without rebuilding.
 
-- Suppose we need to generate 3 additional IP addresses:
-    - ip_0: 192.168.1.1:8080
-    - ip_1: 192.168.1.2:8080
-    - ip_2: 192.168.1.3:8080
+- Assume I need to generate 3 additional IP addresses:
+  - ip_0: 192.168.1.1:8080
+  - ip_1: 192.168.1.2:8080
+  - ip_2: 192.168.1.3:8080
 
-#### Create an IP Configuration File Generator
-Create an IP folder and create an IP configuration file generator within it:  
-`Create -> Addressables -> Remote IP List`  
+#### Creating an IP Configuration File Generator
+Create an IP folder, and inside it, create an IP configuration file generator: Create -> Addressables -> Remote IP List.
 ![](media/17349201142556.png)
 
-#### Create an IP Configuration File
-In the Inspector panel, enter the IP information and file generation path, then click the **Export To Json** button.  
-![](media/17349204620419.png)
+#### Creating an IP Configuration File
+In the Inspector panel, fill in the IP information and the file generation path, then click the `Export To Json` button.
+![](media/17362216311810.png)
 
-You will see a newly generated IP configuration file in the specified target folder.  
+You will observe that a new IP configuration file has been generated in the specified target folder.
 ![](media/17349206332681.png)
 
-This IP configuration file can be stored on a server, and the IP addresses can be fetched from the remote server when building multi-IP catalog files.
+This IP configuration file can be stored on a server. When building multi-IP catalog files, the IPs can be fetched from the remote server.
+Similarly, you can test this by clicking `Load From Local Json` and `Load From Remote Json`.
 
-#### Create an Alternative Remote IP Configuration File
-In the IP folder, create an Alternative Remote IP configuration file:  
-`Create -> Addressables -> Alternative Remote IP`  
-![](media/17349207972355.png)
+### Configuring Multi Catalog Hash Build
+Return to the Inspector window of `Multi Catalog Hash Build`.
+![](media/17362218402511.png)
 
-Enter the remote URL for the IP configuration file. You can click the **Load Remote IPs Async** button to confirm if the remote IPs you need have been correctly loaded. As shown in the figure, they have been successfully loaded.  
-![](media/17349209086195.png)
+Fill in:
+- The URL of the multi-IP directory JSON file.
+- The URL of the build cache.
+- The path to generate the build cache (you may need to manually upload the build cache configuration file to the remote server).
+- The path to the Addressables Settings configuration file.
 
-### Configure Multi Catalog Hash Build
+It is worth noting that the build cache is only generated during the build process. The multi-IP catalog generation function is achieved by reading this configuration file and replacing the original IP address. This means that **before generating multi-IP catalogs, at least one successful build must be performed**.
 
-Select the **AlternativeRemoteIPSetup** configuration file you just created.  
-![](media/17349213387038.png)
+At this point, the configuration for building multi-IP catalogs is complete.
 
-Specify the build cache generation path and the path to the **AddressableAssetSetting**.  
-![](media/17349214283838.png)
+#### Building Multi-IP Catalogs
+In the Inspector window of `Multi Catalog Hash Build`, click `Build Alternative Remote IP Catalog` to build the multi-IP catalogs.
 
-Note that the build cache will only be generated during a build. The multi-IP catalog feature works by reading the configuration file and replacing the original IP addresses, meaning that **at least one successful build must occur before generating multi-IP catalogs**.
+![](media/17362239073108.png)
 
-For testing purposes, you can specify the build cache path to manually restore the build cache. The build cache preview can be viewed in the Inspector panel.  
-![](media/17349220120599.png)  
-![](media/17349221083112.png)
-
-At this point, the configuration for multi-IP catalog construction is complete.
-
-#### Build Multi-IP Catalogs
-In the Inspector panel of the **Multi Catalog Hash Build**, click **Build Alternative Remote IP Catalog** to build multi-IP catalogs.  
-![](media/17349221727375.png)
-
-If these three messages appear in the Console panel, it means the build was successful.  
+When these three messages appear in the Console panel, it means the build was successful.
 ![](media/17349222928267.png)
 
-#### Check the Build Results
-In the `ServerData` folder, you will find newly generated catalog files and hashes. These are the catalogs with the replaced IPs.  
+#### Observing the Build Results
+We observe that new catalog files and hashes have been generated in the `ServerData` folder. These are the catalogs with the IP addresses replaced.
 ![](media/17349224086192.png)
 
-### Command Line Usage
+# Command Line Mode
 
-Unity's `-executeMethod` parameter is used to specify the full path of the static method. Below is the format for the command line:
-
-#### Windows Command Line
 ```bash
-<Path_To_Unity_Editor>/Unity.exe -projectPath <Path_To_Project> -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadPath "<Cache_Load_Path>" -alternativeRemoteIPLoadUrl "<Remote_IP_Url>"
-```
-#### macOS/Linux Command Line
-```bash
-<Path_To_Unity_Editor>/Unity -projectPath <Path_To_Project> -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadPath "<Cache_Load_Path>" -alternativeRemoteIPLoadUrl "<Remote_IP_Url>"
-```
-- <Path_To_Unity_Editor>: The path to the Unity Editor executable. Examples:
-  - Windows: C:\Program Files\Unity\Hub\Editor\2023.1.0\Editor\Unity.exe
-  - macOS: /Applications/Unity/Hub/Editor/2023.1.0/Unity
-- <Path_To_Project>: The root directory path of your Unity project.
-- <Cache_Load_Path> and <Remote_IP_Url>: Replace with the actual values you need to pass as arguments.
-
-#### Complete Example
-
-Example Command
-
-Assume buildResultCacheLoadPath is C:\CachePath, alternativeRemoteIPLoadUrl is http://example.com, your Unity project path is D:\MyUnityProject, and Unity Editor is installed in the default directory:
-```bash
-"C:\Program Files\Unity\Hub\Editor\2023.1.0\Editor\Unity.exe" -projectPath "D:\MyUnityProject" -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadPath "C:\CachePath" -alternativeRemoteIPLoadUrl "http://example.com"
+<Unity Executable Path> -quit accept-apiupdate -batchmode -projectPath <Project_Path> -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.MultiCatalogHashBuild.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadUrl <Build Result Cache Load Url> -alternativeRemoteIPLoadUrl <Alternative_RemoteIP_Load_Url>
 ```
 
-
-
-
-
-
+```bash
+/Applications/Unity/Unity.app/Contents/MacOS/Unity -quit accept-apiupdate -batchmode -projectPath "/Users/jinceyang/RiderProjects/addressables_test" -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.MultiCatalogHashBuild.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadUrl "http://127.0.0.1:8085/build_cache.json" -alternativeRemoteIPLoadUrl "http://127.0.0.1:8085/remote_ips.json"
+```

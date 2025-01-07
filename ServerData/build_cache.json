@@ -5,7 +5,7 @@
     "target": "StandaloneOSX",
     "pathSuffix": "",
     "runtimeSettingsFilename": "settings.json",
-    "runtimeCatalogFilename": "catalog.bin",
+    "runtimeCatalogFilename": "catalog.json",
     "isBuildAndRelease": false,
     "isContentUpdateBuild": false,
     "registry": {
@@ -27,7 +27,8 @@
         "keys": [
           "remoteassets_assets_all_a5d4dcef8395cf9b437165dba07cd727.bundle"
         ],
-        "dependencies": []
+        "dependencies": [],
+        "data": "AAEAAAD/////AQAAAAAAAAAMAgAAAExVbml0eS5SZXNvdXJjZU1hbmFnZXIsIFZlcnNpb249MC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsBQEAAABKVW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0QnVuZGxlUmVxdWVzdE9wdGlvbnMMAAAABm1fSGFzaAVtX0NyYwltX1RpbWVvdXQRbV9DaHVua2VkVHJhbnNmZXIPbV9SZWRpcmVjdExpbWl0DG1fUmV0cnlDb3VudAxtX0J1bmRsZU5hbWUPbV9Bc3NldExvYWRNb2RlDG1fQnVuZGxlU2l6ZRhtX1VzZUNyY0ZvckNhY2hlZEJ1bmRsZXMXbV9Vc2VVV1JGb3JMb2NhbEJ1bmRsZXMkbV9DbGVhck90aGVyQ2FjaGVkVmVyc2lvbnNXaGVuTG9hZGVkAQAAAAAAAQQAAAAADwgBCAg+VW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0TG9hZE1vZGUCAAAACQEBAQIAAAAGAwAAACBhNWQ0ZGNlZjgzOTVjZjliNDM3MTY1ZGJhMDdjZDcyN2VxB54AAAAAAP////8AAAAABgQAAAAgMzgwZDc2NjFhMzc5OTI2M2UwYjFhNjg1ZmMyOWM3MjYF+////z5Vbml0eUVuZ2luZS5SZXNvdXJjZU1hbmFnZW1lbnQuUmVzb3VyY2VQcm92aWRlcnMuQXNzZXRMb2FkTW9kZQEAAAAHdmFsdWVfXwAIAgAAAAAAAAA6vQEAAAAAAAEAAAs="
       },
       {
         "internalId": "http://127.0.0.1:8085/StandaloneOSX/DLC2/remoteassets2_assets_all_3cb2e6e791776b98477e49aec3cb8f67.bundle",
@@ -36,7 +37,8 @@
         "keys": [
           "remoteassets2_assets_all_3cb2e6e791776b98477e49aec3cb8f67.bundle"
         ],
-        "dependencies": []
+        "dependencies": [],
+        "data": "AAEAAAD/////AQAAAAAAAAAMAgAAAExVbml0eS5SZXNvdXJjZU1hbmFnZXIsIFZlcnNpb249MC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsBQEAAABKVW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0QnVuZGxlUmVxdWVzdE9wdGlvbnMMAAAABm1fSGFzaAVtX0NyYwltX1RpbWVvdXQRbV9DaHVua2VkVHJhbnNmZXIPbV9SZWRpcmVjdExpbWl0DG1fUmV0cnlDb3VudAxtX0J1bmRsZU5hbWUPbV9Bc3NldExvYWRNb2RlDG1fQnVuZGxlU2l6ZRhtX1VzZUNyY0ZvckNhY2hlZEJ1bmRsZXMXbV9Vc2VVV1JGb3JMb2NhbEJ1bmRsZXMkbV9DbGVhck90aGVyQ2FjaGVkVmVyc2lvbnNXaGVuTG9hZGVkAQAAAAAAAQQAAAAADwgBCAg+VW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0TG9hZE1vZGUCAAAACQEBAQIAAAAGAwAAACAzY2IyZTZlNzkxNzc2Yjk4NDc3ZTQ5YWVjM2NiOGY2NwBrgNEAAAAAAP////8AAAAABgQAAAAgNDBiNTU4MGY2OTVlYjg2ZWQ3ZWQ0NjRkOTIzNTdmMzAF+////z5Vbml0eUVuZ2luZS5SZXNvdXJjZU1hbmFnZW1lbnQuUmVzb3VyY2VQcm92aWRlcnMuQXNzZXRMb2FkTW9kZQEAAAAHdmFsdWVfXwAIAgAAAAAAAACDuwEAAAAAAAEAAAs="
       },
       {
         "internalId": "{UnityEngine.AddressableAssets.Addressables.RuntimePath}/StandaloneOSX/defaultlocalgroup_assets_all_c6455f09ecce85c7e3a70c8befa8c5cd.bundle",
@@ -45,7 +47,8 @@
         "keys": [
           "defaultlocalgroup_assets_all_c6455f09ecce85c7e3a70c8befa8c5cd.bundle"
         ],
-        "dependencies": []
+        "dependencies": [],
+        "data": "AAEAAAD/////AQAAAAAAAAAMAgAAAExVbml0eS5SZXNvdXJjZU1hbmFnZXIsIFZlcnNpb249MC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsBQEAAABKVW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0QnVuZGxlUmVxdWVzdE9wdGlvbnMMAAAABm1fSGFzaAVtX0NyYwltX1RpbWVvdXQRbV9DaHVua2VkVHJhbnNmZXIPbV9SZWRpcmVjdExpbWl0DG1fUmV0cnlDb3VudAxtX0J1bmRsZU5hbWUPbV9Bc3NldExvYWRNb2RlDG1fQnVuZGxlU2l6ZRhtX1VzZUNyY0ZvckNhY2hlZEJ1bmRsZXMXbV9Vc2VVV1JGb3JMb2NhbEJ1bmRsZXMkbV9DbGVhck90aGVyQ2FjaGVkVmVyc2lvbnNXaGVuTG9hZGVkAQAAAAAAAQQAAAAADwgBCAg+VW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0TG9hZE1vZGUCAAAACQEBAQIAAAAGAwAAACBjNjQ1NWYwOWVjY2U4NWM3ZTNhNzBjOGJlZmE4YzVjZKypP70AAAAAAP////8AAAAABgQAAAAgNDkwNjYwODQ3M2MxZWM0NTI4YmNlNzRjODczZGZkZjIF+////z5Vbml0eUVuZ2luZS5SZXNvdXJjZU1hbmFnZW1lbnQuUmVzb3VyY2VQcm92aWRlcnMuQXNzZXRMb2FkTW9kZQEAAAAHdmFsdWVfXwAIAgAAAAAAAADWuwEAAAAAAAEAAAs="
       },
       {
         "internalId": "http://127.0.0.1:8085/StandaloneOSX/DLC2/remoteassets1_assets_all_0a8db7ab7871c62bae3eb91bd7b4d1b2.bundle",
@@ -54,7 +57,8 @@
         "keys": [
           "remoteassets1_assets_all_0a8db7ab7871c62bae3eb91bd7b4d1b2.bundle"
         ],
-        "dependencies": []
+        "dependencies": [],
+        "data": "AAEAAAD/////AQAAAAAAAAAMAgAAAExVbml0eS5SZXNvdXJjZU1hbmFnZXIsIFZlcnNpb249MC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsBQEAAABKVW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0QnVuZGxlUmVxdWVzdE9wdGlvbnMMAAAABm1fSGFzaAVtX0NyYwltX1RpbWVvdXQRbV9DaHVua2VkVHJhbnNmZXIPbV9SZWRpcmVjdExpbWl0DG1fUmV0cnlDb3VudAxtX0J1bmRsZU5hbWUPbV9Bc3NldExvYWRNb2RlDG1fQnVuZGxlU2l6ZRhtX1VzZUNyY0ZvckNhY2hlZEJ1bmRsZXMXbV9Vc2VVV1JGb3JMb2NhbEJ1bmRsZXMkbV9DbGVhck90aGVyQ2FjaGVkVmVyc2lvbnNXaGVuTG9hZGVkAQAAAAAAAQQAAAAADwgBCAg+VW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0TG9hZE1vZGUCAAAACQEBAQIAAAAGAwAAACAwYThkYjdhYjc4NzFjNjJiYWUzZWI5MWJkN2I0ZDFiMlDi8UoAAAAAAP////8AAAAABgQAAAAgNzY3NThiMjFkZGYxMTRhYzM0NTM0Mjc3ZGI1MDQxODgF+////z5Vbml0eUVuZ2luZS5SZXNvdXJjZU1hbmFnZW1lbnQuUmVzb3VyY2VQcm92aWRlcnMuQXNzZXRMb2FkTW9kZQEAAAAHdmFsdWVfXwAIAgAAAAAAAAB5uwEAAAAAAAEAAAs="
       },
       {
         "internalId": "Assets/Prefab/Cube 1.prefab",
@@ -66,7 +70,8 @@
         ],
         "dependencies": [
           "remoteassets_assets_all_a5d4dcef8395cf9b437165dba07cd727.bundle"
-        ]
+        ],
+        "data": ""
       },
       {
         "internalId": "Assets/Prefab/Cube 2.prefab",
@@ -78,7 +83,8 @@
         ],
         "dependencies": [
           "remoteassets_assets_all_a5d4dcef8395cf9b437165dba07cd727.bundle"
-        ]
+        ],
+        "data": ""
       },
       {
         "internalId": "Assets/Prefab/Cube 3.prefab",
@@ -90,7 +96,8 @@
         ],
         "dependencies": [
           "remoteassets2_assets_all_3cb2e6e791776b98477e49aec3cb8f67.bundle"
-        ]
+        ],
+        "data": ""
       },
       {
         "internalId": "Assets/Prefab/Cube.prefab",
@@ -102,7 +109,8 @@
         ],
         "dependencies": [
           "defaultlocalgroup_assets_all_c6455f09ecce85c7e3a70c8befa8c5cd.bundle"
-        ]
+        ],
+        "data": ""
       },
       {
         "internalId": "Assets/Prefab/Cube 4.prefab",
@@ -114,7 +122,8 @@
         ],
         "dependencies": [
           "remoteassets1_assets_all_0a8db7ab7871c62bae3eb91bd7b4d1b2.bundle"
-        ]
+        ],
+        "data": ""
       }
     ],
     "providerTypes": [
@@ -158,7 +167,8 @@
             "keys": [
               "defaultlocalgroup_assets_all_c6455f09ecce85c7e3a70c8befa8c5cd.bundle"
             ],
-            "dependencies": []
+            "dependencies": [],
+            "data": "AAEAAAD/////AQAAAAAAAAAMAgAAAExVbml0eS5SZXNvdXJjZU1hbmFnZXIsIFZlcnNpb249MC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsBQEAAABKVW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0QnVuZGxlUmVxdWVzdE9wdGlvbnMMAAAABm1fSGFzaAVtX0NyYwltX1RpbWVvdXQRbV9DaHVua2VkVHJhbnNmZXIPbV9SZWRpcmVjdExpbWl0DG1fUmV0cnlDb3VudAxtX0J1bmRsZU5hbWUPbV9Bc3NldExvYWRNb2RlDG1fQnVuZGxlU2l6ZRhtX1VzZUNyY0ZvckNhY2hlZEJ1bmRsZXMXbV9Vc2VVV1JGb3JMb2NhbEJ1bmRsZXMkbV9DbGVhck90aGVyQ2FjaGVkVmVyc2lvbnNXaGVuTG9hZGVkAQAAAAAAAQQAAAAADwgBCAg+VW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0TG9hZE1vZGUCAAAACQEBAQIAAAAGAwAAACBjNjQ1NWYwOWVjY2U4NWM3ZTNhNzBjOGJlZmE4YzVjZKypP70AAAAAAP////8AAAAABgQAAAAgNDkwNjYwODQ3M2MxZWM0NTI4YmNlNzRjODczZGZkZjIF+////z5Vbml0eUVuZ2luZS5SZXNvdXJjZU1hbmFnZW1lbnQuUmVzb3VyY2VQcm92aWRlcnMuQXNzZXRMb2FkTW9kZQEAAAAHdmFsdWVfXwAIAgAAAAAAAADWuwEAAAAAAAEAAAs="
           },
           {
             "internalId": "Assets/Prefab/Cube.prefab",
@@ -170,7 +180,8 @@
             ],
             "dependencies": [
               "defaultlocalgroup_assets_all_c6455f09ecce85c7e3a70c8befa8c5cd.bundle"
-            ]
+            ],
+            "data": ""
           }
         ],
         "includedBundles": [
@@ -192,7 +203,8 @@
             "keys": [
               "remoteassets_assets_all_a5d4dcef8395cf9b437165dba07cd727.bundle"
             ],
-            "dependencies": []
+            "dependencies": [],
+            "data": "AAEAAAD/////AQAAAAAAAAAMAgAAAExVbml0eS5SZXNvdXJjZU1hbmFnZXIsIFZlcnNpb249MC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsBQEAAABKVW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0QnVuZGxlUmVxdWVzdE9wdGlvbnMMAAAABm1fSGFzaAVtX0NyYwltX1RpbWVvdXQRbV9DaHVua2VkVHJhbnNmZXIPbV9SZWRpcmVjdExpbWl0DG1fUmV0cnlDb3VudAxtX0J1bmRsZU5hbWUPbV9Bc3NldExvYWRNb2RlDG1fQnVuZGxlU2l6ZRhtX1VzZUNyY0ZvckNhY2hlZEJ1bmRsZXMXbV9Vc2VVV1JGb3JMb2NhbEJ1bmRsZXMkbV9DbGVhck90aGVyQ2FjaGVkVmVyc2lvbnNXaGVuTG9hZGVkAQAAAAAAAQQAAAAADwgBCAg+VW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0TG9hZE1vZGUCAAAACQEBAQIAAAAGAwAAACBhNWQ0ZGNlZjgzOTVjZjliNDM3MTY1ZGJhMDdjZDcyN2VxB54AAAAAAP////8AAAAABgQAAAAgMzgwZDc2NjFhMzc5OTI2M2UwYjFhNjg1ZmMyOWM3MjYF+////z5Vbml0eUVuZ2luZS5SZXNvdXJjZU1hbmFnZW1lbnQuUmVzb3VyY2VQcm92aWRlcnMuQXNzZXRMb2FkTW9kZQEAAAAHdmFsdWVfXwAIAgAAAAAAAAA6vQEAAAAAAAEAAAs="
           },
           {
             "internalId": "Assets/Prefab/Cube 1.prefab",
@@ -204,7 +216,8 @@
             ],
             "dependencies": [
               "remoteassets_assets_all_a5d4dcef8395cf9b437165dba07cd727.bundle"
-            ]
+            ],
+            "data": ""
           },
           {
             "internalId": "Assets/Prefab/Cube 2.prefab",
@@ -216,7 +229,8 @@
             ],
             "dependencies": [
               "remoteassets_assets_all_a5d4dcef8395cf9b437165dba07cd727.bundle"
-            ]
+            ],
+            "data": ""
           }
         ],
         "includedBundles": [
@@ -238,7 +252,8 @@
             "keys": [
               "remoteassets2_assets_all_3cb2e6e791776b98477e49aec3cb8f67.bundle"
             ],
-            "dependencies": []
+            "dependencies": [],
+            "data": "AAEAAAD/////AQAAAAAAAAAMAgAAAExVbml0eS5SZXNvdXJjZU1hbmFnZXIsIFZlcnNpb249MC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsBQEAAABKVW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0QnVuZGxlUmVxdWVzdE9wdGlvbnMMAAAABm1fSGFzaAVtX0NyYwltX1RpbWVvdXQRbV9DaHVua2VkVHJhbnNmZXIPbV9SZWRpcmVjdExpbWl0DG1fUmV0cnlDb3VudAxtX0J1bmRsZU5hbWUPbV9Bc3NldExvYWRNb2RlDG1fQnVuZGxlU2l6ZRhtX1VzZUNyY0ZvckNhY2hlZEJ1bmRsZXMXbV9Vc2VVV1JGb3JMb2NhbEJ1bmRsZXMkbV9DbGVhck90aGVyQ2FjaGVkVmVyc2lvbnNXaGVuTG9hZGVkAQAAAAAAAQQAAAAADwgBCAg+VW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0TG9hZE1vZGUCAAAACQEBAQIAAAAGAwAAACAzY2IyZTZlNzkxNzc2Yjk4NDc3ZTQ5YWVjM2NiOGY2NwBrgNEAAAAAAP////8AAAAABgQAAAAgNDBiNTU4MGY2OTVlYjg2ZWQ3ZWQ0NjRkOTIzNTdmMzAF+////z5Vbml0eUVuZ2luZS5SZXNvdXJjZU1hbmFnZW1lbnQuUmVzb3VyY2VQcm92aWRlcnMuQXNzZXRMb2FkTW9kZQEAAAAHdmFsdWVfXwAIAgAAAAAAAACDuwEAAAAAAAEAAAs="
           },
           {
             "internalId": "http://127.0.0.1:8085/StandaloneOSX/DLC2/remoteassets1_assets_all_0a8db7ab7871c62bae3eb91bd7b4d1b2.bundle",
@@ -247,7 +262,8 @@
             "keys": [
               "remoteassets1_assets_all_0a8db7ab7871c62bae3eb91bd7b4d1b2.bundle"
             ],
-            "dependencies": []
+            "dependencies": [],
+            "data": "AAEAAAD/////AQAAAAAAAAAMAgAAAExVbml0eS5SZXNvdXJjZU1hbmFnZXIsIFZlcnNpb249MC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsBQEAAABKVW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0QnVuZGxlUmVxdWVzdE9wdGlvbnMMAAAABm1fSGFzaAVtX0NyYwltX1RpbWVvdXQRbV9DaHVua2VkVHJhbnNmZXIPbV9SZWRpcmVjdExpbWl0DG1fUmV0cnlDb3VudAxtX0J1bmRsZU5hbWUPbV9Bc3NldExvYWRNb2RlDG1fQnVuZGxlU2l6ZRhtX1VzZUNyY0ZvckNhY2hlZEJ1bmRsZXMXbV9Vc2VVV1JGb3JMb2NhbEJ1bmRsZXMkbV9DbGVhck90aGVyQ2FjaGVkVmVyc2lvbnNXaGVuTG9hZGVkAQAAAAAAAQQAAAAADwgBCAg+VW5pdHlFbmdpbmUuUmVzb3VyY2VNYW5hZ2VtZW50LlJlc291cmNlUHJvdmlkZXJzLkFzc2V0TG9hZE1vZGUCAAAACQEBAQIAAAAGAwAAACAwYThkYjdhYjc4NzFjNjJiYWUzZWI5MWJkN2I0ZDFiMlDi8UoAAAAAAP////8AAAAABgQAAAAgNzY3NThiMjFkZGYxMTRhYzM0NTM0Mjc3ZGI1MDQxODgF+////z5Vbml0eUVuZ2luZS5SZXNvdXJjZU1hbmFnZW1lbnQuUmVzb3VyY2VQcm92aWRlcnMuQXNzZXRMb2FkTW9kZQEAAAAHdmFsdWVfXwAIAgAAAAAAAAB5uwEAAAAAAAEAAAs="
           },
           {
             "internalId": "Assets/Prefab/Cube 3.prefab",
@@ -259,7 +275,8 @@
             ],
             "dependencies": [
               "remoteassets2_assets_all_3cb2e6e791776b98477e49aec3cb8f67.bundle"
-            ]
+            ],
+            "data": ""
           },
           {
             "internalId": "Assets/Prefab/Cube 4.prefab",
@@ -271,7 +288,8 @@
             ],
             "dependencies": [
               "remoteassets1_assets_all_0a8db7ab7871c62bae3eb91bd7b4d1b2.bundle"
-            ]
+            ],
+            "data": ""
           }
         ],
         "includedBundles": [
@@ -280,5 +298,19 @@
         ]
       }
     ]
-  }
+  },
+  "resourceProviderDataList": {
+    "resourceProviderData": [
+      {
+        "ObjectTypeValue": "UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider, Unity.ResourceManager, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+        "Data": null
+      },
+      {
+        "ObjectTypeValue": "UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider, Unity.ResourceManager, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+        "Data": null
+      }
+    ]
+  },
+  "sceneProvider": "UnityEngine.ResourceManagement.ResourceProviders.SceneProvider, Unity.ResourceManager, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+  "instanceProvider": "UnityEngine.ResourceManagement.ResourceProviders.InstanceProvider, Unity.ResourceManager, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"
 }

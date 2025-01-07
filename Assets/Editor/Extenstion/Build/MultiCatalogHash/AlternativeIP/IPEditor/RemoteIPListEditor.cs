@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using Editor.Extenstion.Build.MultiCatalogHash.Tools;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,9 +9,10 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.AlternativeIP.IPEditor
     [UnityEditor.CustomEditor(typeof(RemoteIPList))]
     public class RemoteIPListEditor : UnityEditor.Editor
     {
-        private string outputFileName = "remote_ips.json";
-        private string outputFolderPath = "ServerData";
-        private string jsonFilePath = "ServerData/remote_ips.json";
+        public string outputFileName = "remote_ips.json";
+        public string outputFolderPath = "ServerData";
+        public string localFilePath = "ServerData/remote_ips.json";
+        public string remoteFilePath = "http://127.0.0.1:8085/remote_ips.json";
 
         public override void OnInspectorGUI()
         {
@@ -63,14 +65,26 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.AlternativeIP.IPEditor
             EditorGUILayout.LabelField("Import Settings", EditorStyles.boldLabel);
 
             // JSON 文件路径输入框和按钮
-            jsonFilePath = EditorGUILayout.TextField("JSON File Path", jsonFilePath);
+            localFilePath = EditorGUILayout.TextField("JSON Local File Path", localFilePath);
 
-            if (GUILayout.Button("Load from JSON"))
+            if (GUILayout.Button("Load from local JSON"))
             {
-                LoadFromJson(remoteIPList);
+                string json = File.ReadAllText(localFilePath);
+                remoteIPList.ips = RemoteIPList.LoadFromJson(json);
+                EditorUtility.SetDirty(remoteIPList);
             }
 
-            // 保存更改
+
+            // JSON 文件路径输入框和按钮
+            remoteFilePath = EditorGUILayout.TextField("JSON Remote File Path", remoteFilePath);
+
+            if (GUILayout.Button("Load from remote JSON"))
+            {
+                string json = Utility.DownloadJsonFromUrl(remoteFilePath);
+                remoteIPList.ips = RemoteIPList.LoadFromJson(json);
+                EditorUtility.SetDirty(remoteIPList);
+            }
+
             if (GUI.changed)
             {
                 EditorUtility.SetDirty(remoteIPList);
@@ -100,40 +114,5 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.AlternativeIP.IPEditor
             }
         }
 
-        private void LoadFromJson(RemoteIPList remoteIPList)
-        {
-            if (string.IsNullOrEmpty(jsonFilePath))
-            {
-                Debug.LogError("Please specify a valid JSON file path.");
-                return;
-            }
-
-            if (!File.Exists(jsonFilePath))
-            {
-                Debug.LogError($"JSON file not found: {jsonFilePath}");
-                return;
-            }
-
-            try
-            {
-                string json = File.ReadAllText(jsonFilePath);
-                RemoteIPListWrapper wrapper = JsonUtility.FromJson<RemoteIPListWrapper>(json);
-
-                if (wrapper != null && wrapper.ips != null)
-                {
-                    remoteIPList.ips = wrapper.ips;
-                    EditorUtility.SetDirty(remoteIPList); // 标记为已修改
-                    Debug.Log($"Successfully loaded {wrapper.ips.Count} Remote IPs from JSON file.");
-                }
-                else
-                {
-                    Debug.LogError("Invalid JSON file format.");
-                }
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogError($"Error loading JSON file: {ex.Message}");
-            }
-        }
     }
 }

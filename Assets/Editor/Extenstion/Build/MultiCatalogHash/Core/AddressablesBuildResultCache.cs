@@ -5,7 +5,7 @@ using Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuilderContext;
 using Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuilderInput;
 using Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuilderResult;
 using Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.BuildInfo;
-using Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.ResourceProviderData;
+using Editor.Extenstion.Build.MultiCatalogHash.Core.Serialized.ProviderData;
 using Unity.Plastic.Newtonsoft.Json;
 using UnityEditor.AddressableAssets.Build;
 using UnityEditor.AddressableAssets.Build.DataBuilders;
@@ -22,6 +22,15 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
         public SerializableBuilderResult buildResult;
         public SerializableBuildInfos buildInfos;
         public SerializableResourceProviderDataList resourceProviderDataList;
+        public string sceneProvider;
+        public string instanceProvider;
+
+        public static JsonSerializerSettings settings = new JsonSerializerSettings()
+        {
+            Formatting = Formatting.Indented,
+            Converters = new List<JsonConverter>()
+            { new ObjectInitializationDataConverter(), }
+        };
 
         public AddressablesBuildResultCache() {}
 
@@ -30,13 +39,17 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
             AddressableAssetsBuildContext aaContext,
             AddressablesPlayerBuildResult buildResult,
             List<CatalogBuildInfo> buildInfos,
-            List<ObjectInitializationData> resourceProviderDataList)
+            List<ObjectInitializationData> resourceProviderDataList,
+            Type sceneProvider,
+            Type instanceProvider)
         {
             this.builderInput = new SerializableAddressablesDataBuilderInput(builderInput);
             this.aaContext = new SerializableAddressableAssetsBuildContext(aaContext);
             this.buildResult = new SerializableBuilderResult(buildResult);
             this.buildInfos = new SerializableBuildInfos(buildInfos);
             this.resourceProviderDataList = new SerializableResourceProviderDataList(resourceProviderDataList);
+            this.sceneProvider = sceneProvider.AssemblyQualifiedName;
+            this.instanceProvider = instanceProvider.AssemblyQualifiedName;
         }
 
         /// <summary>
@@ -47,11 +60,6 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
         {
             try
             {
-                var settings = new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                };
-
                 // Serialize the AddressablesBuildResultCache object to JSON string
                 string json = JsonConvert.SerializeObject(this, Formatting.Indented, settings);
 
@@ -68,24 +76,15 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
         /// <summary>
         /// Load an AddressablesBuildResultCache object from a JSON file.
         /// </summary>
-        /// <param name="filePath">The path to the JSON file to load the object from.</param>
+        /// <param name="json">The JSON file to load the object from.</param>
         /// <returns>AddressablesBuildResultCache object loaded from the file.</returns>
-        public static AddressablesBuildResultCache LoadFromJson(string filePath)
+        public static AddressablesBuildResultCache LoadFromJson(string json)
         {
             try
             {
-                if (!File.Exists(filePath))
-                {
-                    Debug.LogError($"File not found: {filePath}");
-                    return null;
-                }
-
-                // Read the JSON string from the file
-                string json = File.ReadAllText(filePath);
-
                 // Deserialize the JSON string to AddressablesBuildResultCache object
-                AddressablesBuildResultCache result = JsonConvert.DeserializeObject<AddressablesBuildResultCache>(json);
-                Debug.Log($"Data successfully loaded from {filePath}");
+                AddressablesBuildResultCache result = JsonConvert.DeserializeObject<AddressablesBuildResultCache>(json, settings);
+                Debug.Log($"Data successfully loaded from {json}");
                 return result;
             }
             catch (Exception e)
@@ -94,5 +93,6 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
                 return null;
             }
         }
+
     }
 }

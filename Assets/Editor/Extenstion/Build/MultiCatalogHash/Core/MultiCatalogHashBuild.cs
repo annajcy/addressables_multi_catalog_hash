@@ -45,10 +45,9 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
         public List<ExternalCatalog> externalCatalogs = new List<ExternalCatalog>();
         public bool buildDefaultCatalogInRemote = true;
         public bool generateBundlesInFolders = true;
-        public bool generateAlternativeRemoteIPCatalog = false;
-        public AlternativeRemoteIP alternativeRemoteIP;
-        public string buildResultCacheSavePath = "Assets/AddressableAssetsData/BuildResult/build_cache.json";
-        public AddressablesBuildResultCache buildResultCache;
+        public string alternativeIpsUrl = "http://127.0.0.1:8085/remote_ips.json";
+        public string buildResultCacheLoadUrl = "http://127.0.0.1:8085/build_cache.json";
+        public string buildResultCacheSavePath = "ServerData/build_cache.json";
 
         private string catalogBuildPath = string.Empty;
         private HashSet<string> createdProviderIds = new HashSet<string>();
@@ -60,6 +59,11 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
         private Dictionary<string, List<ContentCatalogDataEntry>> primaryKeyToDependers = new Dictionary<string, List<ContentCatalogDataEntry>>();
         private Dictionary<string, ContentCatalogDataEntry> primaryKeyToLocation = new Dictionary<string, ContentCatalogDataEntry>();
         private Dictionary<AddressableAssetGroup, (string, string)[]> groupToBundleNames = new Dictionary<AddressableAssetGroup, (string, string)[]>();
+
+        /// <summary>
+        /// A temporary list of the groups that get processed during a build.
+        /// </summary>
+        private readonly List<AddressableAssetGroup> includedGroupsInBuild = new List<AddressableAssetGroup>();
 
         // Tests can set this flag to prevent player script compilation. This is the most expensive part of small builds
         // and isn't needed for most tests.
@@ -389,238 +393,124 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
 
         public static void BuildAlternativeRemoteIPCatalogCommandLine()
         {
-            string buildResultCacheLoadPath = Utility.GetCommandLineArg("-buildResultCacheLoadPath");
+            string buildResultCacheLoadPath = Utility.GetCommandLineArg("-buildResultCacheLoadUrl");
             string alternativeRemoteIPLoadUrl = Utility.GetCommandLineArg("-alternativeRemoteIPLoadUrl");
-            BuildAlternativeRemoteIPCatalogCommandLine(buildResultCacheLoadPath, alternativeRemoteIPLoadUrl);
+            BuildAlternativeRemoteIPCatalog(buildResultCacheLoadPath, alternativeRemoteIPLoadUrl);
         }
 
-        public static void BuildAlternativeRemoteIPCatalogCommandLine(string buildResultCacheLoadPath, string alternativeRemoteIPLoadUrl)
+        public static void BuildAlternativeRemoteIPCatalog(string buildResultCacheLoadUrl, string alternativeRemoteIPLoadUrl)
         {
-            var buildResultCache = AddressablesBuildResultCache.LoadFromJson(buildResultCacheLoadPath);
+            string buildCacheJson = Utility.DownloadJsonFromUrl(buildResultCacheLoadUrl);
+            string remoteIpsJson = Utility.DownloadJsonFromUrl(alternativeRemoteIPLoadUrl);
+            var buildResultCache = AddressablesBuildResultCache.LoadFromJson(buildCacheJson);
+            var remoteIps = RemoteIPList.LoadFromJson(remoteIpsJson);
 
-            if (buildResultCache != null)
+            if (buildResultCache != null && remoteIps != null && remoteIps.Count != 0)
             {
-                BuildAlternativeRemoteIPCatalogStatic(
+                BuildAlternativeRemoteIPCatalog(
                     buildResultCache.builderInput.ToOriginal(buildResultCache.aaContext.ToOriginal().Settings),
                     buildResultCache.aaContext.ToOriginal(),
                     buildResultCache.buildResult.ToOriginal(),
                     buildResultCache.buildInfos.ToOriginal(),
                     buildResultCache.resourceProviderDataList.ToOriginal(),
-                    alternativeRemoteIPLoadUrl);
+                    Type.GetType(buildResultCache.sceneProvider),
+                    Type.GetType(buildResultCache.instanceProvider),
+                    remoteIps);
                 Debug.Log("Build Alternative Remote IP Catalog Performed for MultiCatalogHashBuild.");
             }
             else Debug.LogError("Failed To Build Alternative Remote IP Catalog Performed for MultiCatalogHashBuild.");
         }
 
-        private static void BuildAlternativeRemoteIPCatalogStatic
+        private static void BuildAlternativeRemoteIPCatalog
             (AddressablesDataBuilderInput builderInput,
                 AddressableAssetsBuildContext aaContext,
                 AddressablesPlayerBuildResult addrResult,
                 List<CatalogBuildInfo> catalogs,
                 List<ObjectInitializationData> resourceProviderData,
-                string url = null)
+                Type sceneProvider,
+                Type instanceProvider,
+                List<RemoteIP> remoteIps)
         {
-            var remoteIps = AlternativeRemoteIP.LoadRemoteIpsStatic(url);
-            if (remoteIps != null && remoteIps.Count != 0)
+            catalogs.RemoveAt(0);
+            catalogs.ForEach(catalogInfo =>
             {
-                var remoteCatalogs = catalogs;
-                remoteCatalogs.RemoveAt(0);
-                remoteCatalogs.ForEach(catalogInfo =>
+                var buildPath = catalogInfo.buildPath;
+                var loadPath = catalogInfo.loadPath;
+
+                foreach (var ip in remoteIps)
                 {
-                    var buildPath = catalogInfo.buildPath;
-                    var loadPath = catalogInfo.loadPath;
-
-                    foreach (var ip in remoteIps)
+                    foreach (var catalogDataEntry in catalogInfo.locations)
                     {
-                        foreach (var catalogDataEntry in catalogInfo.locations)
+                        if (catalogDataEntry.Dependencies.Count != 0) continue;
+                        catalogDataEntry.InternalId = Utility.ReplaceIPAddress(
+                            catalogDataEntry.InternalId,
+                            ip.Address);
+                    }
+
+                    catalogInfo.loadPath = Utility.ReplaceIPAddress(loadPath, ip.Address);
+                    catalogInfo.buildPath = buildPath + "_" + ip.identifier;
+
+                    var contentCatalog = new ContentCatalogData(catalogInfo.identifier);
+
+                    # region Generate Caxtalog Files
+
+                    if (addrResult != null)
+                    {
+                        List<Object> hashingObjects = new List<Object>();
+                        foreach (var assetBundleBuildResult in addrResult.AssetBundleBuildResults)
                         {
-                            if (catalogDataEntry.Dependencies.Count != 0) continue;
-                            catalogDataEntry.InternalId = Utility.ReplaceIPAddress(
-                                catalogDataEntry.InternalId,
-                                ip.Address);
-                        }
-
-                        catalogInfo.loadPath = Utility.ReplaceIPAddress(loadPath, ip.Address);
-                        catalogInfo.buildPath = buildPath + "_" + ip.identifier;
-
-                        var contentCatalog = new ContentCatalogData(catalogInfo.identifier);
-
-                        # region Generate Caxtalog Files
-
-
-                        if (addrResult != null)
-                        {
-                            List<Object> hashingObjects = new List<Object>();
-                            foreach (var assetBundleBuildResult in addrResult.AssetBundleBuildResults)
-                            {
-                                if (catalogInfo.includedBundles.Exists(bundleName => string.Equals(bundleName,
+                            if (catalogInfo.includedBundles.Exists(bundleName => string.Equals(bundleName,
                                     Utility.GetFileName(assetBundleBuildResult.FilePath, builderInput.Target))))
-                                    hashingObjects.Add(assetBundleBuildResult.Hash);
-                            }
-                            string buildResultHash = HashingMethods.Calculate(hashingObjects.ToArray()).ToString();
-                            contentCatalog.BuildResultHash = buildResultHash;
+                                hashingObjects.Add(assetBundleBuildResult.Hash);
                         }
+                        string buildResultHash = HashingMethods.Calculate(hashingObjects.ToArray()).ToString();
+                        contentCatalog.BuildResultHash = buildResultHash;
+                    }
 
-                        //set data
-                        contentCatalog.SetData(catalogInfo.locations.OrderBy(entry => entry.InternalId).ToList());
+                    //set data
+                    contentCatalog.SetData(catalogInfo.locations.OrderBy(entry => entry.InternalId).ToList());
 
-                        //set providers
-                        contentCatalog.ResourceProviderData.AddRange(resourceProviderData);
-                        foreach (var t in aaContext.providerTypes)
-                            contentCatalog.ResourceProviderData.Add(ObjectInitializationData
-                                .CreateSerializedInitializationData(t));
-                        contentCatalog.InstanceProviderData =
-                            ObjectInitializationData.CreateSerializedInitializationData(typeof(InstanceProvider));
-                        contentCatalog.SceneProviderData =
-                            ObjectInitializationData.CreateSerializedInitializationData(typeof(SceneProvider));
+                    //set providers
+                    contentCatalog.ResourceProviderData.AddRange(resourceProviderData);
+                    foreach (var t in aaContext.providerTypes)
+                        contentCatalog.ResourceProviderData.Add(ObjectInitializationData
+                            .CreateSerializedInitializationData(t));
+                    contentCatalog.InstanceProviderData =
+                        ObjectInitializationData.CreateSerializedInitializationData(instanceProvider);
+                    contentCatalog.SceneProviderData =
+                        ObjectInitializationData.CreateSerializedInitializationData(sceneProvider);
 
 #if ENABLE_JSON_CATALOG
 
-                        //save json catalog
-                        string jsonText = JsonUtility.ToJson(contentCatalog);
+                    //save json catalog
+                    string jsonText = JsonUtility.ToJson(contentCatalog);
 
-                        if (aaContext.Settings.BuildRemoteCatalog || ProjectConfigData.GenerateBuildLayout)
-                        {
-                            string contentHash = HashingMethods.Calculate(jsonText).ToString();
-                            contentCatalog.LocalHash = contentHash;
-                        }
-
-                        CreateCatalogFilesStatic(jsonText, catalogInfo, builderInput, aaContext);
-#else
-                        //save binary catalog
-                        byte[] bytes = contentCatalog.SerializeToByteArray();
-
-                        if (aaContext.Settings.BuildRemoteCatalog || ProjectConfigData.GenerateBuildLayout)
-                        {
-                            string contentHash = HashingMethods.Calculate(bytes).ToString();
-                            contentCatalog.LocalHash = contentHash;
-                        }
-
-                        CreateCatalogFilesStatic(bytes, catalogInfo, builderInput, aaContext);
-#endif
-                        #endregion
-                    }
-
-                    catalogInfo.buildPath = buildPath;
-                    catalogInfo.loadPath = loadPath;
-                });
-            }
-        }
-
-        public void BuildAlternativeRemoteIPCatalog
-            (AddressablesDataBuilderInput builderInput,
-                AddressableAssetsBuildContext aaContext,
-                AddressablesPlayerBuildResult addrResult,
-                List<CatalogBuildInfo> catalogs,
-                List<ObjectInitializationData> resourceProviderData,
-                string url = null)
-        {
-            if (alternativeRemoteIP.LoadRemoteIps(url) && alternativeRemoteIP.remoteIps.Count != 0)
-            {
-                var remoteCatalogs = catalogs;
-                remoteCatalogs.RemoveAt(0);
-                remoteCatalogs.ForEach(catalogInfo =>
-                {
-                    var buildPath = catalogInfo.buildPath;
-                    var loadPath = catalogInfo.loadPath;
-
-                    foreach (var ip in alternativeRemoteIP.remoteIps)
+                    if (aaContext.Settings.BuildRemoteCatalog || ProjectConfigData.GenerateBuildLayout)
                     {
-                        foreach (var catalogDataEntry in catalogInfo.locations)
-                        {
-                            if (catalogDataEntry.Dependencies.Count != 0) continue;
-                            catalogDataEntry.InternalId = Utility.ReplaceIPAddress(
-                                catalogDataEntry.InternalId,
-                                ip.Address);
-                        }
-
-                        catalogInfo.loadPath = Utility.ReplaceIPAddress(loadPath, ip.Address);
-                        catalogInfo.buildPath = buildPath + "_" + ip.identifier;
-
-                        var contentCatalog = new ContentCatalogData(catalogInfo.identifier);
-
-                        # region Generate Caxtalog Files
-
-                        string catalogType =
-
-#if ENABLE_JSON_CATALOG
-                            "Json";
-#else
-                            "bin";
-#endif
-
-                        using (Log.ScopedStep(LogLevel.Info, $"Generate {catalogType} Catalog"))
-                        {
-                            if (addrResult != null)
-                            {
-                                List<Object> hashingObjects = new List<Object>();
-                                foreach (var assetBundleBuildResult in addrResult.AssetBundleBuildResults)
-                                {
-                                    if (catalogInfo.includedBundles.Exists(bundleName => string.Equals(bundleName,
-                                        Utility.GetFileName(assetBundleBuildResult.FilePath, builderInput.Target))))
-                                        hashingObjects.Add(assetBundleBuildResult.Hash);
-                                }
-                                string buildResultHash = HashingMethods.Calculate(hashingObjects.ToArray()).ToString();
-                                contentCatalog.BuildResultHash = buildResultHash;
-                            }
-
-                            //set data
-                            contentCatalog.SetData(catalogInfo.locations.OrderBy(entry => entry.InternalId).ToList());
-
-                            //set providers
-                            contentCatalog.ResourceProviderData.AddRange(resourceProviderData);
-                            foreach (var t in aaContext.providerTypes)
-                                contentCatalog.ResourceProviderData.Add(ObjectInitializationData
-                                    .CreateSerializedInitializationData(t));
-                            contentCatalog.InstanceProviderData =
-                                ObjectInitializationData.CreateSerializedInitializationData(instanceProviderType.Value);
-                            contentCatalog.SceneProviderData =
-                                ObjectInitializationData.CreateSerializedInitializationData(sceneProviderType.Value);
-
-#if ENABLE_JSON_CATALOG
-
-                            //save json catalog
-                            string jsonText = null;
-                            using (Log.ScopedStep(LogLevel.Info, "Generating Json"))
-                                jsonText = JsonUtility.ToJson(contentCatalog);
-
-                            if (aaContext.Settings.BuildRemoteCatalog || ProjectConfigData.GenerateBuildLayout)
-                            {
-                                string contentHash = null;
-                                using (Log.ScopedStep(LogLevel.Info, "Hashing Catalog"))
-                                    contentHash = HashingMethods.Calculate(jsonText).ToString();
-                                contentCatalog.LocalHash = contentHash;
-                            }
-
-                            CreateCatalogFiles(jsonText, catalogInfo, builderInput, aaContext);
-#else
-                            //save binary catalog
-                            byte[] bytes = null;
-                            using (Log.ScopedStep(LogLevel.Info, "Generating Bin"))
-                                bytes = contentCatalog.SerializeToByteArray();
-
-                            if (aaContext.Settings.BuildRemoteCatalog || ProjectConfigData.GenerateBuildLayout)
-                            {
-                                string contentHash = null;
-                                using (Log.ScopedStep(LogLevel.Info, "Hashing Catalog"))
-                                    contentHash = HashingMethods.Calculate(bytes).ToString();
-                                contentCatalog.LocalHash = contentHash;
-                            }
-
-                            CreateCatalogFiles(bytes, catalogInfo, builderInput, aaContext);
-#endif
-                        }
-
-                        #endregion
+                        string contentHash = HashingMethods.Calculate(jsonText).ToString();
+                        contentCatalog.LocalHash = contentHash;
                     }
 
-                    catalogInfo.buildPath = buildPath;
-                    catalogInfo.loadPath = loadPath;
-                });
-            }
+                    CreateCatalogFilesStatic(jsonText, catalogInfo, builderInput, aaContext);
+#else
+                    //save binary catalog
+                    byte[] bytes = contentCatalog.SerializeToByteArray();
+
+                    if (aaContext.Settings.BuildRemoteCatalog || ProjectConfigData.GenerateBuildLayout)
+                    {
+                        string contentHash = HashingMethods.Calculate(bytes).ToString();
+                        contentCatalog.LocalHash = contentHash;
+                    }
+
+                    CreateCatalogFilesStatic(bytes, catalogInfo, builderInput, aaContext);
+#endif
+                    #endregion
+                }
+
+                catalogInfo.buildPath = buildPath;
+                catalogInfo.loadPath = loadPath;
+            });
         }
-
-
 
         /// <summary>
         /// The method that does the actual building after all the groups have been processed.
@@ -745,7 +635,10 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
 
             var catalogs = GetContentCatalogs(builderInput, aaContext);
 
-            buildResultCache = new AddressablesBuildResultCache(builderInput, aaContext, addrResult, catalogs, resourceProviderData);
+            var instanceProvider = instanceProviderType.Value;
+            var sceneProvider = sceneProviderType.Value;
+
+            var buildResultCache = new AddressablesBuildResultCache(builderInput, aaContext, addrResult, catalogs, resourceProviderData, sceneProvider, instanceProvider);
             buildResultCache.SaveToJson(buildResultCacheSavePath);
 
             catalogs.ForEach(catalogInfo =>
@@ -828,13 +721,6 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
                 #endregion
 
             });
-
-            #endregion
-
-            #region Build Catalogs With Alternative IP Address
-
-            if (generateAlternativeRemoteIPCatalog)
-                BuildAlternativeRemoteIPCatalog(builderInput, aaContext, addrResult, catalogs, resourceProviderData);
 
             #endregion
 
@@ -1197,7 +1083,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
         }
 
 #if ENABLE_JSON_CATALOG
-        private ReturnCode CreateCatalogBundle(string filepath, string jsonText, AddressablesDataBuilderInput builderInput)
+        private static ReturnCode CreateCatalogBundle(string filepath, string jsonText, AddressablesDataBuilderInput builderInput)
         {
             if (string.IsNullOrEmpty(filepath) || string.IsNullOrEmpty(jsonText) || builderInput == null)
             {
@@ -1242,7 +1128,7 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
             var buildParams = new BundleBuildParameters(builderInput.Target, builderInput.TargetGroup, Path.GetDirectoryName(filepath));
             if (builderInput.Target == BuildTarget.WebGL)
                 buildParams.BundleCompression = BuildCompression.LZ4Runtime;
-            var retCode = ContentPipeline.BuildAssetBundles(buildParams, bundleBuildContent, out IBundleBuildResults result, buildTasks, Log);
+            var retCode = ContentPipeline.BuildAssetBundles(buildParams, bundleBuildContent, out IBundleBuildResults result, buildTasks);
 
             if (Directory.Exists(tempFolderPath))
             {
@@ -1453,11 +1339,6 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
                 return ProcessBundledAssetSchema(bundledAssetSchema, assetGroup, aaContext);
             return string.Empty;
         }
-
-        /// <summary>
-        /// A temporary list of the groups that get processed during a build.
-        /// </summary>
-        private List<AddressableAssetGroup> includedGroupsInBuild = new List<AddressableAssetGroup>();
 
         /// <summary>
         /// The processing of the bundled asset schema.  This is where the bundle(s) for a given group are actually setup.

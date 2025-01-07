@@ -2,20 +2,53 @@ using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using UnityEditor;
+using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Editor.Extenstion.Build.MultiCatalogHash.Tools
 {
     public static class Utility
     {
+        public static string DownloadJsonFromUrl(string url, string savedName = null)
+        {
+            try
+            {
+                // 使用 UnityWebRequest 同步下载 JSON
+                UnityWebRequest webRequest = UnityWebRequest.Get(url);
+                var operation = webRequest.SendWebRequest();
+
+                while (!operation.isDone) { }
+
+                if (webRequest.result == UnityWebRequest.Result.Success)
+                {
+                    if (savedName != null)
+                    {
+                        string localPath = Path.Combine(Application.temporaryCachePath, savedName);
+                        File.WriteAllText(localPath, webRequest.downloadHandler.text);
+                        Debug.Log($"Downloaded JSON saved to: {localPath}");
+                    }
+
+                    return webRequest.downloadHandler.text;
+                }
+                else
+                {
+                    Debug.LogError($"Failed to download JSON: {webRequest.error}");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error during JSON download: {ex.Message}");
+                return null;
+            }
+        }
+
         public static string GetCommandLineArg(string name)
         {
             string[] args = System.Environment.GetCommandLineArgs();
             for (int i = 0; i < args.Length; i++)
-            {
                 if (args[i] == name && i + 1 < args.Length)
                     return args[i + 1];
-
-            }
             return null;
         }
 

@@ -213,39 +213,34 @@ namespace Script
 
 #### 创建ip配置文件
 在Inspector面板中填入ip信息，文件生成路径，点击 Export To Json按钮
-![](media/17349204620419.png)
+![](media/17362216311810.png)
+
 我们会观察到在指定的目标文件夹内有新生成的ip配置文件
 ![](media/17349206332681.png)
 
 这份ip配置文件可以存到服务器上，构建多ip catalog文件时可以从远程服务器上下载获取ip
+同样，你可以通过点击 Load From Local Json 和 Load From Remote Json 来对此进行测试
 
-#### 新建 Alternative Remote IP 配置文件
-在IP文件夹中新建 Alternative Remote IP 配置文件: Create -> Addressables -> Alternative Remote IP
-![](media/17349207972355.png)
-
-填入ip配置文件的远程url，你可以点击Load Remote IPs Async按钮来确认你所需要的远程ip是否被正确加载，如图所示，他可以被成功加载。
-
-![](media/17349209086195.png)
 
 ### 配置Multi Catalog Hash Build
+回到Multi Catalog Hash Build的Inspector窗口
+![](media/17362218402511.png)
 
-选择刚刚创建了 AlternativeRemoteIPSetup配置文件
-![](media/17349213387038.png)
-
-指定构建缓存的生成路径，AddressableAssetSetting的路径
-![](media/17349214283838.png)
+填写
+- 多ip目录json文件的url
+- 构建缓存的url
+- 生成构建缓存的路径（你可能需要手动将构建缓存配置文件上传到远程服务器上）
+- addressables setting 配置文件的路径
 
 值得注意的是，构建缓存仅会在构建时生成，生成多ip catalog功能是通过读取该配置文件，替换掉原ip地址而实现的，这意味着，**在生成多ip catalog前，至少有一次成功的构建**
-
-为了测试，你可以指定构建缓存的路径来手动恢复构建缓存，构建缓存的预览可以在Inspector窗口中得到
-![](media/17349220120599.png)
-![](media/17349221083112.png)
 
 至此，多IP目录的构建的配置已经完成
 
 #### 构建多IP目录
 在Multi Catalog Hash Build的Inspector窗口中，点击Build Alternative Remote IP Catalog 便可以构建多IP目录
-![](media/17349221727375.png)
+
+![](media/17362239073108.png)
+
 
 在Console面板中出现这三个消息便意味着构建成功
 ![](media/17349222928267.png)
@@ -254,41 +249,12 @@ namespace Script
 我们观察到在ServerData文件夹中生成了新的catalog文件和hash，这是替换过ip后的catalog
 ![](media/17349224086192.png)
 
-## 命令行模式
+# 命令行模式
 
-要在命令行中调用 BuildAlternativeRemoteIPCatalogCommandLine 函数，需要按照 Unity 的命令行工具使用规范来执行。以下是具体的步骤：
-
-
-### 命令行调用方式
-
-Unity 的 -executeMethod 参数用于指定静态方法的完整路径。以下是命令行的调用格式：
-
-Windows 命令行
 ```bash
-<Path_To_Unity_Editor>/Unity.exe -projectPath <Path_To_Project> -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadPath "<Cache_Load_Path>" -alternativeRemoteIPLoadUrl "<Remote_IP_Url>"
+<Unity Executable Path> -quit accept-apiupdate -batchmode -projectPath <Project_Path> -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.MultiCatalogHashBuild.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadUrl <Build Result Cache Load Url> -alternativeRemoteIPLoadUrl <Alternative_RemoteIP_Load_Url>
 ```
 
-macOS/Linux 命令行
 ```bash
-<Path_To_Unity_Editor>/Unity -projectPath <Path_To_Project> -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadPath "<Cache_Load_Path>" -alternativeRemoteIPLoadUrl "<Remote_IP_Url>"
+/Applications/Unity/Unity.app/Contents/MacOS/Unity -quit accept-apiupdate -batchmode -projectPath "/Users/jinceyang/RiderProjects/addressables_test" -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.MultiCatalogHashBuild.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadUrl "http://127.0.0.1:8085/build_cache.json" -alternativeRemoteIPLoadUrl "http://127.0.0.1:8085/remote_ips.json"
 ```
-
-- <Path_To_Unity_Editor>: Unity Editor 的可执行文件路径。例如：
-- Windows: C:\Program Files\Unity\Hub\Editor\2023.1.0\Editor\Unity.exe
-- macOS: /Applications/Unity/Hub/Editor/2023.1.0/Unity
-- <Path_To_Project>: Unity 项目的根目录路径。
-- <Cache_Load_Path> 和 <Remote_IP_Url>: 替换为实际需要传递的参数值。
-
-
-### 完整示例
-
-示例调用
-
-假设你的 buildResultCacheLoadPath 是 C:\CachePath，alternativeRemoteIPLoadUrl 是 http://example.com, Unity 项目路径是 D:\MyUnityProject，Unity Editor 安装在默认路径：
-```bash
-"C:\Program Files\Unity\Hub\Editor\2023.1.0\Editor\Unity.exe" -projectPath "D:\MyUnityProject" -executeMethod Editor.Extenstion.Build.MultiCatalogHash.Core.BuildAlternativeRemoteIPCatalogCommandLine -buildResultCacheLoadPath "C:\CachePath" -alternativeRemoteIPLoadUrl "http://example.com"
-```
-
-
-
-
