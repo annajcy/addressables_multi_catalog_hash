@@ -459,8 +459,11 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
                         List<Object> hashingObjects = new List<Object>();
                         foreach (var assetBundleBuildResult in addrResult.AssetBundleBuildResults)
                         {
-                            if (catalogInfo.includedBundles.Exists(bundleName => string.Equals(bundleName,
-                                    Utility.GetFileName(assetBundleBuildResult.FilePath, builderInput.Target))))
+                            if (assetBundleBuildResult == null || string.IsNullOrEmpty(assetBundleBuildResult.FilePath))
+                                continue;
+                            
+                            string fileName = Utility.GetFileName(assetBundleBuildResult.FilePath, builderInput.Target);
+                            if (!string.IsNullOrEmpty(fileName) && catalogInfo.includedBundles.Contains(fileName))
                                 hashingObjects.Add(assetBundleBuildResult.Hash);
                         }
                         string buildResultHash = HashingMethods.Calculate(hashingObjects.ToArray()).ToString();
@@ -662,8 +665,11 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Core
                         List<Object> hashingObjects = new List<Object>();
                         foreach (var assetBundleBuildResult in addrResult.AssetBundleBuildResults)
                         {
-                            if (catalogInfo.includedBundles.Exists(bundleName => string.Equals(bundleName,
-                                    Utility.GetFileName(assetBundleBuildResult.FilePath, builderInput.Target))))
+                            if (assetBundleBuildResult == null || string.IsNullOrEmpty(assetBundleBuildResult.FilePath))
+                                continue;
+                            
+                            string fileName = Utility.GetFileName(assetBundleBuildResult.FilePath, builderInput.Target);
+                            if (!string.IsNullOrEmpty(fileName) && catalogInfo.includedBundles.Contains(fileName))
                                 hashingObjects.Add(assetBundleBuildResult.Hash);
                         }
 

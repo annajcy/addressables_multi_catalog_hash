@@ -110,7 +110,19 @@ namespace Editor.Extenstion.Build.MultiCatalogHash.Tools
 
         public static string GetFileName(string path, BuildTarget target)
         {
-            char directorySeparatorChar = PathSeparatorForPlatform(target);
+            if (string.IsNullOrEmpty(path))
+                return path;
+
+            char directorySeparatorChar;
+            try
+            {
+                directorySeparatorChar = PathSeparatorForPlatform(target);
+            }
+            catch (Exception)
+            {
+                // If platform mapping fails, default to forward slash
+                directorySeparatorChar = '/';
+            }
 
             if (path != null)
             {
